@@ -1,5 +1,6 @@
 package vista;
 
+import controlador.ControladorJuego;
 import tablero.Tablero;
 
 import javax.swing.*;
@@ -12,6 +13,9 @@ public class VentanaPrincipal extends JFrame {
         CargadorAssets assets = new CargadorAssets();
         this.panelTablero = new PanelTablero(tablero, assets);
 
+        ControladorJuego controlador = new ControladorJuego(tablero, panelTablero::repaint);
+        addKeyListener(controlador);
+
         configurarVentana();
     }
 
@@ -23,7 +27,7 @@ public class VentanaPrincipal extends JFrame {
         add(panelTablero);
 
         pack();
-        setLocationRelativeTo(null); // centra la ventana en la pantalla
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
