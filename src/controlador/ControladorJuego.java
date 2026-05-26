@@ -2,7 +2,6 @@ package controlador;
 
 import tablero.Celda;
 import tablero.Tablero;
-import tablero.entidades.CajaNormal;
 import tablero.entidades.Nada;
 
 import java.awt.event.KeyAdapter;
@@ -12,20 +11,23 @@ public class ControladorJuego extends KeyAdapter {
 
     private final Tablero tablero;
     private final Runnable onMovimiento;
+    private final Runnable onNivelSuperado;
 
     private int jugadorFila;
     private int jugadorColumna;
+    private boolean nivelTerminado = false;
 
-    public ControladorJuego(Tablero tablero, Runnable onMovimiento) {
+    public ControladorJuego(Tablero tablero, Runnable onMovimiento, Runnable onNivelSuperado) {
         this.tablero = tablero;
         this.onMovimiento = onMovimiento;
+        this.onNivelSuperado = onNivelSuperado;
         ubicarJugador();
     }
 
     private void ubicarJugador() {
         for (int f = 0; f < tablero.obtenerFilas(); f++) {
             for (int c = 0; c < tablero.obtenerColumnas(); c++) {
-                if (tablero.obtenerCelda(f, c).obtenerEntidad() instanceof tablero.entidades.Jugador) {
+                if (tablero.obtenerCelda(f, c).obtenerEntidad().esJugador()) {
                     jugadorFila = f;
                     jugadorColumna = c;
                     return;
@@ -37,6 +39,8 @@ public class ControladorJuego extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if (nivelTerminado) return;
+
         int deltaFila = 0;
         int deltaColumna = 0;
 
@@ -63,7 +67,7 @@ public class ControladorJuego extends KeyAdapter {
 
         if (destino.tieneEntidad()) {
             // Solo empuja CajaNormal
-            if (!(destino.obtenerEntidad() instanceof CajaNormal)) return;
+            if (!destino.obtenerEntidad().esCajaNormal()) return;
 
             if (!intentarEmpujarCaja(nuevaFila, nuevaColumna, deltaFila, deltaColumna)) return;
         }
@@ -77,6 +81,12 @@ public class ControladorJuego extends KeyAdapter {
         jugadorColumna = nuevaColumna;
 
         onMovimiento.run();
+
+        // Verificar si el nivel fue completado
+        if (verificarNivelCompleto()) {
+            nivelTerminado = true;
+            onNivelSuperado.run();
+        }
     }
 
     private boolean intentarEmpujarCaja(int cajaFila, int cajaColumna, int deltaFila, int deltaColumna) {
@@ -93,6 +103,26 @@ public class ControladorJuego extends KeyAdapter {
         destinoCaja.establecerEntidad(tablero.obtenerCelda(cajaFila, cajaColumna).obtenerEntidad());
         tablero.obtenerCelda(cajaFila, cajaColumna).establecerEntidad(new Nada());
 
+        return true;
+    }
+
+    /**
+     * El nivel está completo cuando todas las celdas Destino
+     * tienen una CajaNormal encima.
+     */
+    private boolean verificarNivelCompleto() {
+        for (int f = 0; f < tablero.obtenerFilas(); f++) {
+            for (int c = 0; c < tablero.obtenerColumnas(); c++) {
+                Celda celda = tablero.obtenerCelda(f, c);
+                if (celda.obtenerPiso().esDestino()) {
+                    // Hay un Destino sin CajaNormal encima → nivel incompleto
+                    if (!celda.obtenerEntidad().esCajaNormal()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        // Todos los Destinos tienen CajaNormal → nivel completo
         return true;
     }
 }

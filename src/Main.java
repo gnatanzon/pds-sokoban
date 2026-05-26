@@ -7,10 +7,12 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        String rutaNivel = "Nivel1.txt";
+
         FabricaElementosSokoban fabrica = new FabricaElementosSokoban();
         CargadorNivel cargador = new CargadorNivel(fabrica);
-        Tablero tablero = cargador.cargar("nivel1.txt");
+        Tablero tablero = cargador.cargar(rutaNivel);
 
-        SwingUtilities.invokeLater(() -> new VentanaPrincipal(tablero));
+        SwingUtilities.invokeLater(() -> new VentanaPrincipal(tablero, rutaNivel));
     }
 }
