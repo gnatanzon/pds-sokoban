@@ -5,6 +5,12 @@ import tablero.entidades.*;
 
 public class FabricaElementosSokoban implements FabricaElementos {
 
+    private final Jugador jugador;
+
+    public FabricaElementosSokoban(Jugador jugador) {
+        this.jugador = jugador;
+    }
+
     @Override
     public Piso crearPiso(int codigo) {
         switch (codigo) {
@@ -23,7 +29,7 @@ public class FabricaElementosSokoban implements FabricaElementos {
     public Entidad crearEntidad(int codigo) {
         switch (codigo) {
             case 0: return new Nada();
-            case 1: return new Jugador.Builder().build();
+            case 1: return jugador; // usa el jugador configurado por el usuario
             case 2: return new CajaNormal();
             case 3: return new CajaFragil();
             case 4: return new CajaLlave();

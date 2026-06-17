@@ -1,5 +1,7 @@
 package tablero.background;
 
+import sonido.GestorSonido;
+
 public class Cerrojo implements Piso {
 
     @Override
@@ -10,5 +12,11 @@ public class Cerrojo implements Piso {
     @Override
     public String obtenerSimbolo() {
         return "CC";
+    }
+
+
+    @Override
+    public GestorSonido.Sonido obtenerSonido() {
+        return GestorSonido.Sonido.CERROJO;
     }
 }

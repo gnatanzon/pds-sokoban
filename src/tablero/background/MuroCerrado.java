@@ -1,5 +1,7 @@
 package tablero.background;
 
+import sonido.GestorSonido;
+
 public class MuroCerrado implements Piso {
 
     @Override
@@ -10,5 +12,10 @@ public class MuroCerrado implements Piso {
     @Override
     public String obtenerSimbolo() {
         return "MC";
+    }
+
+    @Override
+    public GestorSonido.Sonido obtenerSonido() {
+        return GestorSonido.Sonido.PARED;
     }
 }

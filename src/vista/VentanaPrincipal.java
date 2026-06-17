@@ -80,7 +80,7 @@ public class VentanaPrincipal extends JFrame {
     }
 
     private void cargarYMostrarNivel(String rutaNivel) throws Exception {
-        FabricaElementosSokoban fabrica = new FabricaElementosSokoban();
+        FabricaElementosSokoban fabrica = new FabricaElementosSokoban(jugador);
         CargadorNivel cargador = new CargadorNivel(fabrica);
         Tablero tablero = cargador.cargar(rutaNivel);
 

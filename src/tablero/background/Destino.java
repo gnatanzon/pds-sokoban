@@ -1,5 +1,7 @@
 package tablero.background;
 
+import sonido.GestorSonido;
+
 public class Destino implements Piso {
 
     @Override
@@ -10,5 +12,10 @@ public class Destino implements Piso {
     @Override
     public String obtenerSimbolo() {
         return "CD";
+    }
+
+    @Override
+    public GestorSonido.Sonido obtenerSonido() {
+        return GestorSonido.Sonido.DESTINO;
     }
 }
