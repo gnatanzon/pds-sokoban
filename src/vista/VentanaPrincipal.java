@@ -5,13 +5,11 @@ import controlador.GestorNiveles;
 import tablero.CargadorNivel;
 import tablero.Tablero;
 import tablero.constructor.FabricaElementosSokoban;
+import tablero.entidades.Jugador;
 
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Ventana principal del juego. Sirve para poder elegir entre el juego y un selector de niveles.
- */
 public class VentanaPrincipal extends JFrame {
 
     private static final String VISTA_SELECTOR = "selector";
@@ -23,10 +21,13 @@ public class VentanaPrincipal extends JFrame {
     private final GestorNiveles gestor;
     private PanelTablero panelTablero;
 
+    // El jugador se crea una sola vez al inicio y se reutiliza en todos los niveles
+    private Jugador jugador;
+
     public VentanaPrincipal() {
         this.gestor = new GestorNiveles();
         configurarVentana();
-        mostrarSelector();
+        mostrarPantallaCreacionPersonaje(); // primero el Builder, luego el selector
     }
 
     // ── Formato de la ventana principal ────────────────────────────────────────────────
@@ -36,6 +37,23 @@ public class VentanaPrincipal extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setContentPane(contenedor);
+    }
+
+    // ── Creación del personaje con el Builder ───────────────────────────────────────────
+
+    private void mostrarPantallaCreacionPersonaje() {
+        PantallaCrearPersonaje pantalla = new PantallaCrearPersonaje(this);
+        pantalla.setVisible(true); // bloquea hasta que el usuario confirma o cancela
+
+        jugador = pantalla.getJugador();
+
+        if (jugador == null) {
+            // El usuario cerró la ventana sin confirmar → salir
+            System.exit(0);
+        }
+
+        setTitle("Sokoban — " + jugador.getNombre());
+        mostrarSelector();
     }
 
     // ── Vistas disponibles ──────────────────────────────────────────────
@@ -66,7 +84,8 @@ public class VentanaPrincipal extends JFrame {
         CargadorNivel cargador = new CargadorNivel(fabrica);
         Tablero tablero = cargador.cargar(rutaNivel);
 
-        CargadorAssets assets = new CargadorAssets();
+        // Pasa el jugador para que CargadorAssets sepa qué sprite usar
+        CargadorAssets assets = new CargadorAssets(jugador);
         panelTablero = new PanelTablero(tablero, assets);
 
         ControladorJuego controlador = new ControladorJuego(
@@ -75,13 +94,10 @@ public class VentanaPrincipal extends JFrame {
                 () -> SwingUtilities.invokeLater(this::mostrarDialogoVictoria)
         );
 
-        // Reemplazar el panel de juego anterior si existía
         reemplazarVistaJuego(tablero, controlador);
     }
 
     private void reemplazarVistaJuego(Tablero tablero, ControladorJuego controlador) {
-        // Remover keyListeners anteriores asi no se superponen los inputs al pasar de nivel o volver
-        // al selector o reiniciar
         for (java.awt.event.KeyListener kl : getKeyListeners()) {
             removeKeyListener(kl);
         }
@@ -166,13 +182,19 @@ public class VentanaPrincipal extends JFrame {
         sub.setFont(new Font("SansSerif", Font.PLAIN, 14));
         sub.setForeground(new Color(80, 80, 80));
 
-        panel.add(titulo, BorderLayout.NORTH);
-        panel.add(sub,    BorderLayout.CENTER);
+        // Muestra el nombre del personaje en la pantalla de victoria
+        JLabel lblJugador = new JLabel("Jugador: " + jugador.getNombre(), SwingConstants.CENTER);
+        lblJugador.setFont(new Font("SansSerif", Font.ITALIC, 12));
+        lblJugador.setForeground(new Color(100, 100, 100));
+
+        panel.add(titulo,     BorderLayout.NORTH);
+        panel.add(sub,        BorderLayout.CENTER);
+        panel.add(lblJugador, BorderLayout.SOUTH);
         return panel;
     }
 
     private void manejarRespuestaVictoria(int respuesta, boolean hayMasNiveles) {
-        gestor.desbloquearSiguiente(); //se completa un nivel y desbloquea
+        gestor.desbloquearSiguiente();
         if (hayMasNiveles) {
             switch (respuesta) {
                 case 0 -> avanzarAlSiguienteNivel();
@@ -180,13 +202,12 @@ public class VentanaPrincipal extends JFrame {
                 default -> volverAlSelector();
             }
         } else {
-            // Último nivel: "Repetir" o "Selector"
             if (respuesta == 0) reiniciarNivelActual();
             else                volverAlSelector();
         }
     }
 
-    // ── Botones para moverse en los menús ───────────────────────────────────────────────
+    // ── Navegación entre niveles ───────────────────────────────────────────────
 
     private void avanzarAlSiguienteNivel() {
         try {

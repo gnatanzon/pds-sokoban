@@ -16,7 +16,7 @@ public class CargadorAssets {
 
     private final Map<Class<?>, ImageIcon> imagenes = new HashMap<>();
 
-    public CargadorAssets() {
+    public CargadorAssets(Jugador jugador) {
         cargarImagen(Pared.class,           "Pared.png");
         cargarImagen(EspacioVacio.class,    "EspacioVacio.png");
         cargarImagen(Destino.class,         "Destino.png");
@@ -25,7 +25,8 @@ public class CargadorAssets {
         cargarImagen(MuroCerrado.class,     "MuroCerrado.png");
         cargarImagen(MuroAbierto.class,     "MuroAbierto.png");
 
-        cargarImagen(Jugador.class,         "Jugador.png");
+        // Usa el sprite elegido por el jugador en lugar de "Jugador.png" fijo
+        cargarImagen(Jugador.class,         jugador.getSpritePath());
         cargarImagen(CajaNormal.class,      "CajaNormal.png");
         cargarImagen(CajaFragil.class,      "CajaFragil.png");
         cargarImagen(CajaLlave.class,       "CajaLlave.png");
@@ -53,7 +54,5 @@ public class CargadorAssets {
         return null;
     }
 
-    public int obtenerTamanoCelda() {
-        return TAMANO_CELDA;
-    }
+    public int obtenerTamanoCelda() { return TAMANO_CELDA; }
 }

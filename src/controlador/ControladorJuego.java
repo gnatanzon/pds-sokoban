@@ -1,11 +1,10 @@
 package controlador;
 
+import sonido.GestorSonido;
 import tablero.Celda;
 import tablero.Tablero;
 import tablero.background.Destino;
-import tablero.entidades.Caja;
-import tablero.entidades.Jugador;
-import tablero.entidades.Nada;
+import tablero.entidades.*;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -15,7 +14,9 @@ public class ControladorJuego extends KeyAdapter {
     private final Tablero tablero;
     private final Runnable onMovimiento;
     private final Runnable onNivelSuperado;
+    private final GestorSonido sonido = GestorSonido.obtenerInstancia();
 
+    private Jugador jugador;
     private int jugadorFila;
     private int jugadorColumna;
     private boolean nivelTerminado = false;
@@ -30,8 +31,9 @@ public class ControladorJuego extends KeyAdapter {
     private void ubicarJugador() {
         for (int f = 0; f < tablero.obtenerFilas(); f++) {
             for (int c = 0; c < tablero.obtenerColumnas(); c++) {
-                if (tablero.obtenerCelda(f, c).obtenerEntidad() instanceof Jugador) {
-                    jugadorFila = f;
+                if (tablero.obtenerCelda(f, c).obtenerEntidad() instanceof Jugador j) {
+                    jugador       = j;
+                    jugadorFila   = f;
                     jugadorColumna = c;
                     return;
                 }
@@ -44,7 +46,7 @@ public class ControladorJuego extends KeyAdapter {
     public void keyPressed(KeyEvent e) {
         if (nivelTerminado) return;
 
-        int deltaFila = 0;
+        int deltaFila    = 0;
         int deltaColumna = 0;
 
         switch (e.getKeyCode()) {
@@ -66,21 +68,27 @@ public class ControladorJuego extends KeyAdapter {
 
         Celda destino = tablero.obtenerCelda(nuevaFila, nuevaColumna);
 
-        if (destino.obtenerPiso().esSolido()) return;
+        if (destino.obtenerPiso().esSolido()) {
+            sonido.reproducir(destino.obtenerPiso().obtenerSonido());
+            return;
+        }
 
         if (destino.tieneEntidad()) {
-            // Solo empuja cajas, no al jugador ni a Nada
             if (!(destino.obtenerEntidad() instanceof Caja)) return;
-
             if (!intentarEmpujarCaja(nuevaFila, nuevaColumna, deltaFila, deltaColumna)) return;
         }
 
-        // Mover jugador
         tablero.obtenerCelda(jugadorFila, jugadorColumna).establecerEntidad(new Nada());
-        destino.establecerEntidad(new Jugador());
+        destino.establecerEntidad(jugador);
 
         jugadorFila    = nuevaFila;
         jugadorColumna = nuevaColumna;
+
+        GestorSonido.Sonido sonidoAReproducir = destino.obtenerPiso().usaSonidoDelJugador()
+                ? jugador.obtenerSonido()
+                : destino.obtenerPiso().obtenerSonido();
+
+        sonido.reproducir(sonidoAReproducir);
 
         onMovimiento.run();
 
@@ -100,7 +108,10 @@ public class ControladorJuego extends KeyAdapter {
 
         if (!destinoCaja.estaLibre()) return false;
 
-        destinoCaja.establecerEntidad(tablero.obtenerCelda(cajaFila, cajaColumna).obtenerEntidad());
+        Entidad caja = tablero.obtenerCelda(cajaFila, cajaColumna).obtenerEntidad();
+        sonido.reproducir(caja.obtenerSonido());
+
+        destinoCaja.establecerEntidad(caja);
         tablero.obtenerCelda(cajaFila, cajaColumna).establecerEntidad(new Nada());
 
         return true;

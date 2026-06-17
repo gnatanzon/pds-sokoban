@@ -23,7 +23,7 @@ public class FabricaElementosSokoban implements FabricaElementos {
     public Entidad crearEntidad(int codigo) {
         switch (codigo) {
             case 0: return new Nada();
-            case 1: return new Jugador();
+            case 1: return new Jugador.Builder().build();
             case 2: return new CajaNormal();
             case 3: return new CajaFragil();
             case 4: return new CajaLlave();

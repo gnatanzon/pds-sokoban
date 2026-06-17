@@ -10,13 +10,15 @@ public class GestorSonido {
     private static final String RUTA = "/sonidos/";
 
     public enum Sonido {
-        PARED           ("Pared.mp3"),
-        ESPACIO_VACIO   ("EspacioVacio.mp3"),
-        DESTINO         ("Destino.mp3"),
-        PISO_RESBALADIZO("PisoResbaladizo.mp3"),
-        CERROJO         ("Cerrojo.mp3"),
-        CAJA            ("Caja.mp3"),
-        CAJA_FRAGIL_ROTA("CajaFragilRota.mp3");
+        PARED               ("Pared.wav"),
+        ESPACIO_VACIO_1     ("EspacioVacio1.wav"),
+        ESPACIO_VACIO_2     ("EspacioVacio2.wav"),
+        ESPACIO_VACIO_3     ("EspacioVacio3.wav"),
+        DESTINO             ("Destino.wav"),
+        PISO_RESBALADIZO    ("PisoResbaladizo.wav"),
+        CERROJO             ("Cerrojo.wav"),
+        CAJA                ("Caja.wav"),
+        CAJA_FRAGIL_ROTA    ("CajaFragilRota.wav");
 
         private final String archivo;
 
@@ -42,15 +44,20 @@ public class GestorSonido {
         try {
             URL url = getClass().getResource(RUTA + sonido.getArchivo());
             if (url == null) {
-                System.err.println("No se encontró el sonido: " + sonido.getArchivo());
+                System.err.println("No se encontró " + sonido.getArchivo());
                 return;
             }
             AudioInputStream audio = AudioSystem.getAudioInputStream(url);
             Clip clip = AudioSystem.getClip();
             clip.open(audio);
+            clip.addLineListener(evento -> {
+                if (evento.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                }
+            });
             clip.start();
         } catch (Exception e) {
-            System.err.println("Error al reproducir " + sonido.getArchivo() + ": " + e.getMessage());
+            System.err.println("Error c/ " + sonido.getArchivo() + ": " + e.getMessage());
         }
     }
 }
