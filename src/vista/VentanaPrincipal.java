@@ -79,22 +79,24 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
+    private ControladorJuego controladorActual; // agregá este campo a la clase
+
     private void cargarYMostrarNivel(String rutaNivel) throws Exception {
         FabricaElementosSokoban fabrica = new FabricaElementosSokoban(jugador);
         CargadorNivel cargador = new CargadorNivel(fabrica);
         Tablero tablero = cargador.cargar(rutaNivel);
 
-        // Pasa el jugador para que CargadorAssets sepa qué sprite usar
         CargadorAssets assets = new CargadorAssets(jugador);
         panelTablero = new PanelTablero(tablero, assets);
 
-        ControladorJuego controlador = new ControladorJuego(
-                tablero,
-                panelTablero::repaint,
-                () -> SwingUtilities.invokeLater(this::mostrarDialogoVictoria)
-        );
+        controladorActual = new ControladorJuego(tablero);
+        controladorActual.agregarObservador(new controlador.observer.ObservadorJuego() {
+            @Override public void onMovimiento()    { panelTablero.repaint(); }
+            @Override public void onNivelSuperado() { SwingUtilities.invokeLater(VentanaPrincipal.this::mostrarDialogoVictoria); }
+            @Override public void onUndo()          { panelTablero.repaint(); }
+        });
 
-        reemplazarVistaJuego(tablero, controlador);
+        reemplazarVistaJuego(tablero, controladorActual);
     }
 
     private void reemplazarVistaJuego(Tablero tablero, ControladorJuego controlador) {
@@ -125,9 +127,13 @@ public class VentanaPrincipal extends JFrame {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 6));
         panel.setBackground(new Color(40, 40, 40));
 
+        JButton btnUndo      = crearBoton("↩ Undo", () -> {
+            if (controladorActual != null) controladorActual.deshacerMovimiento();
+        });
         JButton btnReiniciar = crearBoton("🔄 Reiniciar", this::reiniciarNivelActual);
         JButton btnSelector  = crearBoton("📋 Selector de niveles", this::volverAlSelector);
 
+        panel.add(btnUndo);
         panel.add(btnSelector);
         panel.add(btnReiniciar);
         return panel;

@@ -1,39 +1,54 @@
 package controlador;
 
+import controlador.memento.HistorialMovimientos;
+import controlador.observer.ObservadorJuego;
 import sonido.GestorSonido;
 import tablero.Celda;
 import tablero.Tablero;
-import tablero.background.Destino;
+import tablero.background.*;
 import tablero.entidades.*;
+import tablero.entidades.movimiento.*;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControladorJuego extends KeyAdapter {
 
     private final Tablero tablero;
-    private final Runnable onMovimiento;
-    private final Runnable onNivelSuperado;
     private final GestorSonido sonido = GestorSonido.obtenerInstancia();
+    private final HistorialMovimientos historial = new HistorialMovimientos();
+    private final List<ObservadorJuego> observadores = new ArrayList<>();
 
     private Jugador jugador;
     private int jugadorFila;
     private int jugadorColumna;
     private boolean nivelTerminado = false;
 
-    public ControladorJuego(Tablero tablero, Runnable onMovimiento, Runnable onNivelSuperado) {
+    // Estrategias de movimiento
+    private final EstrategiaMovimiento movimientoNormal      = new MovimientoNormal();
+    private final EstrategiaMovimiento movimientoResbaladizo = new MovimientoResbaladizo();
+
+    public ControladorJuego(Tablero tablero) {
         this.tablero = tablero;
-        this.onMovimiento = onMovimiento;
-        this.onNivelSuperado = onNivelSuperado;
         ubicarJugador();
     }
+
+    public void agregarObservador(ObservadorJuego obs) {
+        observadores.add(obs);
+    }
+
+    private void notificarMovimiento()   { observadores.forEach(ObservadorJuego::onMovimiento); }
+    private void notificarNivelSuperado(){ observadores.forEach(ObservadorJuego::onNivelSuperado); }
+    private void notificarUndo()         { observadores.forEach(ObservadorJuego::onUndo); }
 
     private void ubicarJugador() {
         for (int f = 0; f < tablero.obtenerFilas(); f++) {
             for (int c = 0; c < tablero.obtenerColumnas(); c++) {
                 if (tablero.obtenerCelda(f, c).obtenerEntidad() instanceof Jugador j) {
-                    jugador       = j;
-                    jugadorFila   = f;
+                    jugador        = j;
+                    jugadorFila    = f;
                     jugadorColumna = c;
                     return;
                 }
@@ -60,6 +75,14 @@ public class ControladorJuego extends KeyAdapter {
         moverJugador(deltaFila, deltaColumna);
     }
 
+    public void deshacerMovimiento() {
+        if (nivelTerminado) return;
+        if (historial.deshacer(tablero)) {
+            ubicarJugador(); // reubica al jugador desde el estado restaurado
+            notificarUndo();
+        }
+    }
+
     private void moverJugador(int deltaFila, int deltaColumna) {
         int nuevaFila    = jugadorFila    + deltaFila;
         int nuevaColumna = jugadorColumna + deltaColumna;
@@ -78,7 +101,10 @@ public class ControladorJuego extends KeyAdapter {
             if (!intentarEmpujarCaja(nuevaFila, nuevaColumna, deltaFila, deltaColumna)) return;
         }
 
-        tablero.obtenerCelda(jugadorFila, jugadorColumna).establecerEntidad(new Nada());
+        // Guardar estado ANTES de mover (para Memento)
+        historial.guardar(tablero);
+
+        tablero.obtenerCelda(jugadorFila, jugadorColumna).limpiarEntidad();
         destino.establecerEntidad(jugador);
 
         jugadorFila    = nuevaFila;
@@ -87,34 +113,63 @@ public class ControladorJuego extends KeyAdapter {
         GestorSonido.Sonido sonidoAReproducir = destino.obtenerPiso().usaSonidoDelJugador()
                 ? jugador.obtenerSonido()
                 : destino.obtenerPiso().obtenerSonido();
-
         sonido.reproducir(sonidoAReproducir);
 
-        onMovimiento.run();
+        notificarMovimiento();
 
         if (verificarNivelCompleto()) {
             nivelTerminado = true;
-            onNivelSuperado.run();
+            notificarNivelSuperado();
         }
     }
 
-    private boolean intentarEmpujarCaja(int cajaFila, int cajaColumna, int deltaFila, int deltaColumna) {
-        int filaDestinoCaja    = cajaFila    + deltaFila;
-        int columnaDestinoCaja = cajaColumna + deltaColumna;
+    private boolean intentarEmpujarCaja(int cajaFila, int cajaCol, int deltaFila, int deltaCol) {
+        Celda celdaCaja = tablero.obtenerCelda(cajaFila, cajaCol);
+        Entidad entidad = celdaCaja.obtenerEntidad();
 
-        if (!tablero.dentroDelBorde(filaDestinoCaja, columnaDestinoCaja)) return false;
+        if (!(entidad instanceof Caja caja)) return false;
 
-        Celda destinoCaja = tablero.obtenerCelda(filaDestinoCaja, columnaDestinoCaja);
+        // Elegir estrategia según el piso donde está la caja
+        EstrategiaMovimiento estrategia = (celdaCaja.obtenerPiso() instanceof PisoResbaladizo)
+                ? movimientoResbaladizo
+                : movimientoNormal;
 
-        if (!destinoCaja.estaLibre()) return false;
+        ResultadoMovimiento resultado = estrategia.mover(tablero, cajaFila, cajaCol,
+                deltaFila, deltaCol, caja);
+        if (!resultado.isExito()) return false;
 
-        Entidad caja = tablero.obtenerCelda(cajaFila, cajaColumna).obtenerEntidad();
         sonido.reproducir(caja.obtenerSonido());
 
-        destinoCaja.establecerEntidad(caja);
-        tablero.obtenerCelda(cajaFila, cajaColumna).establecerEntidad(new Nada());
+        // State: si es frágil, aplicar empuje y verificar rotura
+        if (caja instanceof CajaFragil cajaFragil) {
+            cajaFragil.recibirEmpuje();
+            if (cajaFragil.estaRota()) {
+                tablero.obtenerCelda(resultado.getFilaFinal(), resultado.getColFinal())
+                        .limpiarEntidad();
+            }
+        }
+
+        // CajaLlave: si cayó sobre un cerrojo, abrir muros correspondientes
+        if (caja instanceof CajaLlave) {
+            Celda celdaDestino = tablero.obtenerCelda(resultado.getFilaFinal(), resultado.getColFinal());
+            if (celdaDestino.obtenerPiso() instanceof Cerrojo) {
+                abrirMuros();
+            }
+        }
 
         return true;
+    }
+
+    /** Convierte todos los MuroCerrado en MuroAbierto */
+    private void abrirMuros() {
+        for (int f = 0; f < tablero.obtenerFilas(); f++) {
+            for (int c = 0; c < tablero.obtenerColumnas(); c++) {
+                Celda celda = tablero.obtenerCelda(f, c);
+                if (celda.obtenerPiso() instanceof MuroCerrado) {
+                    celda.establecerPiso(new MuroAbierto());
+                }
+            }
+        }
     }
 
     private boolean verificarNivelCompleto() {
@@ -122,12 +177,14 @@ public class ControladorJuego extends KeyAdapter {
             for (int c = 0; c < tablero.obtenerColumnas(); c++) {
                 Celda celda = tablero.obtenerCelda(f, c);
                 if (celda.obtenerPiso() instanceof Destino) {
-                    if (!(celda.obtenerEntidad() instanceof Caja)) {
-                        return false;
-                    }
+                    if (!(celda.obtenerEntidad() instanceof Caja)) return false;
                 }
             }
         }
         return true;
     }
+
+    public boolean puedeDeshacer() { return historial.puedeDeshacer(); }
+    public int getUndosConsecutivos() { return historial.getUndosConsecutivos(); }
+    public int getMaxUndosConsec()    { return historial.getMaxUndosConsec(); }
 }

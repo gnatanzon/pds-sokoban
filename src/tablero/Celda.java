@@ -42,4 +42,8 @@ public class Celda {
     public String toString() {
         return piso.obtenerSimbolo() + "/" + entidad.obtenerSimbolo();
     }
+
+    public void limpiarEntidad() {
+        this.entidad = new Nada();
+    }
 }

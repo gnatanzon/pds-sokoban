@@ -1,23 +1,25 @@
 package tablero.entidades;
 
 import sonido.GestorSonido;
+import tablero.entidades.estado.EstadoFragil;
+import tablero.entidades.estado.EstadoResistente;
 
 public class CajaFragil extends Caja {
 
     private static final int RESISTENCIA_INICIAL = 3;
-    private int resistencia;
+    private EstadoFragil estado;
 
     public CajaFragil() {
-        this.resistencia = RESISTENCIA_INICIAL;
+        this.estado = new EstadoResistente(RESISTENCIA_INICIAL);
     }
 
     public void recibirEmpuje() {
-        if (resistencia > 0) resistencia--;
+        estado = estado.recibirEmpuje();
     }
 
-    public boolean estaRota() { return resistencia == 0; }
+    public boolean estaRota() { return estado.estaRota(); }
 
-    public int obtenerResistencia() { return resistencia; }
+    public int obtenerResistencia() { return estado.obtenerResistencia(); }
 
     @Override
     public String obtenerSimbolo() { return "CF"; }
