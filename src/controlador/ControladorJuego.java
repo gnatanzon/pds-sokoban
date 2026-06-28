@@ -138,6 +138,8 @@ public class ControladorJuego extends KeyAdapter {
                 deltaFila, deltaCol, caja);
         if (!resultado.isExito()) return false;
 
+        historial.registrarEmpuje();
+
         sonido.reproducir(caja.obtenerSonido());
 
         // State: si es frágil, aplicar empuje y verificar rotura
@@ -187,4 +189,8 @@ public class ControladorJuego extends KeyAdapter {
     public boolean puedeDeshacer() { return historial.puedeDeshacer(); }
     public int getUndosConsecutivos() { return historial.getUndosConsecutivos(); }
     public int getMaxUndosConsec()    { return historial.getMaxUndosConsec(); }
+
+    public HistorialMovimientos getHistorial() {
+        return historial;
+    }
 }

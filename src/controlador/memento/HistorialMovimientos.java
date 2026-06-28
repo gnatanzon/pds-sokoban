@@ -15,6 +15,9 @@ public class HistorialMovimientos {
     private static final int MAX_HISTORIAL    = 15;
     private static final int PASOS_POR_UNDO   = 5;
     private static final int MAX_UNDOS_CONSEC = 3;
+    private int totalMovimientos = 0;
+    private int totalEmpujes     = 0;
+    private int totalUndos       = 0;
 
     private final Deque<EstadoTablero> historial = new ArrayDeque<>();
     private int undosConsecutivos = 0;
@@ -26,7 +29,11 @@ public class HistorialMovimientos {
         }
         historial.addLast(new EstadoTablero(tablero));
         undosConsecutivos = 0; // cualquier movimiento real resetea el contador
+        totalMovimientos++;
     }
+
+    /**método  para empujes (llamarlo desde ControladorJuego):*/
+    public void registrarEmpuje() { totalEmpujes++; }
 
     /** Devuelve true si se puede hacer undo ahora. */
     public boolean puedeDeshacer() {
@@ -52,6 +59,7 @@ public class HistorialMovimientos {
 
         restaurar(tablero, estadoObjetivo);
         undosConsecutivos++;
+        totalUndos++;
         return true;
     }
 
@@ -67,4 +75,8 @@ public class HistorialMovimientos {
 
     public int getUndosConsecutivos() { return undosConsecutivos; }
     public int getMaxUndosConsec()    { return MAX_UNDOS_CONSEC; }
+
+    public int getTotalMovimientos() { return totalMovimientos; }
+    public int getTotalEmpujes()     { return totalEmpujes; }
+    public int getTotalUndos()       { return totalUndos; }
 }

@@ -2,6 +2,7 @@ package vista;
 
 import controlador.ControladorJuego;
 import controlador.GestorNiveles;
+import controlador.memento.CalculadorPuntaje;
 import tablero.CargadorNivel;
 import tablero.Tablero;
 import tablero.constructor.FabricaElementosSokoban;
@@ -152,6 +153,23 @@ public class VentanaPrincipal extends JFrame {
 
     private void mostrarDialogoVictoria() {
         panelTablero.repaint();
+
+        int mov    = controladorActual.getHistorial().getTotalMovimientos();
+        int emp    = controladorActual.getHistorial().getTotalEmpujes();
+        int undos  = controladorActual.getHistorial().getTotalUndos();
+        int puntos = CalculadorPuntaje.calcular(mov, emp, undos);
+
+        String mensaje = String.format("""
+            ¡Nivel completado!
+            
+            Movimientos:  %d
+            Empujes:      %d
+            Undos usados: %d
+            
+            Puntaje final: %d
+            """, mov, emp, undos, puntos);
+
+        JOptionPane.showMessageDialog(this, mensaje, "Resumen", JOptionPane.INFORMATION_MESSAGE);
 
         boolean hayMasNiveles = gestor.hayNivelSiguiente();
         String nombreActual   = gestor.obtenerNombreNivel(gestor.obtenerNivelActual());
