@@ -20,4 +20,9 @@ public class EstadoResistente implements EstadoFragil {
 
     @Override
     public int obtenerResistencia() { return resistencia; }
+
+    @Override
+    public EstadoFragil copiar() {
+        return new EstadoResistente(this.resistencia);
+    }
 }

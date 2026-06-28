@@ -4,7 +4,7 @@ import sonido.GestorSonido;
 import tablero.entidades.estado.EstadoFragil;
 import tablero.entidades.estado.EstadoResistente;
 
-public class CajaFragil extends Caja {
+public class CajaFragil extends Caja implements EntidadConEstado<EstadoFragil> {
 
     private static final int RESISTENCIA_INICIAL = 3;
     private EstadoFragil estado;
@@ -27,5 +27,15 @@ public class CajaFragil extends Caja {
     @Override
     public GestorSonido.Sonido obtenerSonido() {
         return GestorSonido.Sonido.CAJA_FRAGIL_ROTA;
+    }
+
+    @Override
+    public EstadoFragil capturarEstado() {
+        return estado.copiar();
+    }
+
+    @Override
+    public void restaurarEstado(EstadoFragil estadoGuardado) {
+        this.estado = estadoGuardado;
     }
 }

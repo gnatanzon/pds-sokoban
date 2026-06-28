@@ -11,4 +11,9 @@ public class EstadoRoto implements EstadoFragil{
 
     @Override
     public int obtenerResistencia() { return 0; }
+
+    @Override
+    public EstadoFragil copiar() {
+        return new EstadoRoto(); // sin estado, instancia nueva alcanza
+    }
 }
