@@ -1,8 +1,8 @@
 package tablero.entidades.movimiento;
 
 import tablero.Tablero;
+import tablero.background.PisoResbaladizo;
 import tablero.entidades.Entidad;
-
 
 public class MovimientoResbaladizo implements EstrategiaMovimiento {
 
@@ -32,9 +32,9 @@ public class MovimientoResbaladizo implements EstrategiaMovimiento {
             int siguienteFila = filaActual + deltaFila;
             int siguienteCol  = colActual  + deltaCol;
 
-            boolean puedeAvanzar = tablero.dentroDelBorde(siguienteFila, siguienteCol)
-                    && tablero.obtenerCelda(siguienteFila, siguienteCol).estaLibre()
-                    && tablero.obtenerCelda(filaActual, colActual).obtenerPiso().permiteDeslizamiento();
+            boolean puedeAvanzar = tablero.obtenerCelda(filaActual, colActual).obtenerPiso() instanceof PisoResbaladizo
+                    && tablero.dentroDelBorde(siguienteFila, siguienteCol)
+                    && tablero.obtenerCelda(siguienteFila, siguienteCol).estaLibre();
 
             if (!puedeAvanzar) break;
 
