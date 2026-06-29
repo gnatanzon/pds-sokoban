@@ -18,7 +18,11 @@ public class Jugador implements Entidad {
         return sonidoEspacioVacio;
     }
 
-    public boolean esJugador()        { return true; }
+    @Override public boolean esJugador()        { return true; }
+
+    @Override public Jugador comoJugador() {
+        return this;
+    }
     @Override public boolean esSolida()         { return true; }
     @Override public String obtenerSimbolo()    { return "JU"; }
 

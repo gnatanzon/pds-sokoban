@@ -1,5 +1,8 @@
 package tablero;
 
+import tablero.background.Piso;
+
+
 public class Tablero {
 
     private final Celda[][] celdas;
@@ -35,5 +38,30 @@ public class Tablero {
             }
             System.out.println();
         }
+    }
+    public void abrirMuros() {
+        for (int f = 0; f < obtenerFilas(); f++) {
+            for (int c = 0; c < obtenerColumnas(); c++) {
+                Celda celda = obtenerCelda(f, c);
+                Piso piso = celda.obtenerPiso();
+
+                if (piso.debeAbrirse()) {
+                    celda.establecerPiso(piso.abrir());
+                }
+            }
+        }
+    }
+
+    public boolean todosLosDestinosTienenCaja() {
+        for (int f = 0; f < obtenerFilas(); f++) {
+            for (int c = 0; c < obtenerColumnas(); c++) {
+                Celda celda = obtenerCelda(f, c);
+
+                if (celda.obtenerPiso().esDestino() && !celda.obtenerEntidad().esCaja()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

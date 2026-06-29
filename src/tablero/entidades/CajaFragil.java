@@ -38,4 +38,12 @@ public class CajaFragil extends Caja implements EntidadConEstado<EstadoFragil> {
     public void restaurarEstado(EstadoFragil estadoGuardado) {
         this.estado = estadoGuardado;
     }
+    @Override
+    public void despuesDeSerEmpujada(tablero.Tablero tablero, tablero.Celda celdaFinal) {
+        recibirEmpuje();
+
+        if (estaRota()) {
+            celdaFinal.limpiarEntidad();
+        }
+    }
 }

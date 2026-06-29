@@ -19,4 +19,10 @@ public class Cerrojo implements Piso {
     public GestorSonido.Sonido obtenerSonido() {
         return GestorSonido.Sonido.CERROJO;
     }
+    @Override
+    public void alRecibirCaja(tablero.Tablero tablero, tablero.Celda celda, tablero.entidades.Caja caja) {
+        if (caja.puedeAbrirCerrojo()) {
+            tablero.abrirMuros();
+        }
+    }
 }

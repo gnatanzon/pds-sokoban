@@ -6,7 +6,6 @@ import tablero.entidades.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,8 +17,8 @@ public class CargadorAssets {
 
     public CargadorAssets(Jugador jugador) {
         cargarImagen(Pared.class,           "Pared.png");
-        cargarImagen(EspacioVacio.class,    "EspacioVacio.png");
-        cargarImagen(Destino.class,         "Destino.png");
+        cargarImagen(EspacioVacio.class,    "EspacioVacio.PNG");
+        cargarImagen(Destino.class,         "Destino.PNG");
         cargarImagen(PisoResbaladizo.class, "PisoResbaladizo.png");
         cargarImagen(Cerrojo.class,         "Cerrojo.png");
         cargarImagen(MuroCerrado.class,     "MuroCerrado.png");
@@ -33,13 +32,17 @@ public class CargadorAssets {
     }
 
     private void cargarImagen(Class<?> clase, String nombreArchivo) {
-        URL url = getClass().getResource("/" + nombreArchivo);
-        if (url != null) {
-            Image imagen = new ImageIcon(url).getImage()
+        String ruta = "Assets/" + nombreArchivo;
+
+        ImageIcon icono = new ImageIcon(ruta);
+
+        if (icono.getIconWidth() > 0) {
+            Image imagen = icono.getImage()
                     .getScaledInstance(TAMANO_CELDA, TAMANO_CELDA, Image.SCALE_SMOOTH);
+
             imagenes.put(clase, new ImageIcon(imagen));
         } else {
-            System.err.println("No se encontró el asset: " + nombreArchivo);
+            System.err.println("No se encontró el asset: " + ruta);
         }
     }
 

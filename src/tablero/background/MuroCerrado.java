@@ -18,4 +18,13 @@ public class MuroCerrado implements Piso {
     public GestorSonido.Sonido obtenerSonido() {
         return GestorSonido.Sonido.PARED;
     }
+    @Override
+    public boolean debeAbrirse() {
+        return true;
+    }
+
+    @Override
+    public Piso abrir() {
+        return new MuroAbierto();
+    }
 }

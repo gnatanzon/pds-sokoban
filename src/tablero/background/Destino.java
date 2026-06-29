@@ -18,4 +18,8 @@ public class Destino implements Piso {
     public GestorSonido.Sonido obtenerSonido() {
         return GestorSonido.Sonido.DESTINO;
     }
+    @Override
+    public boolean esDestino() {
+        return true;
+    }
 }
