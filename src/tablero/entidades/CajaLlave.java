@@ -11,8 +11,14 @@ public class CajaLlave extends Caja {
     public GestorSonido.Sonido obtenerSonido() {
         return GestorSonido.Sonido.CAJA;
     }
+
     @Override
     public boolean puedeAbrirCerrojo() {
         return true;
+    }
+
+    @Override
+    public boolean puedeCumplirObjetivo() {
+        return false;
     }
 }

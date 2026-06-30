@@ -3,7 +3,6 @@ package tablero.entidades.movimiento;
 import tablero.Tablero;
 import tablero.entidades.Entidad;
 
-
 public class MovimientoResbaladizo implements EstrategiaMovimiento {
 
     @Override

@@ -18,4 +18,6 @@ public interface Entidad {
     default Caja comoCaja() {
         throw new IllegalStateException("La entidad no es una caja");
     }
+
+    default boolean puedeCumplirObjetivo() { return false; }
 }

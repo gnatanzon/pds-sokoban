@@ -1,6 +1,9 @@
 package tablero.background;
 
 import sonido.GestorSonido;
+import tablero.Tablero;
+import tablero.Celda;
+import tablero.entidades.Caja;
 
 public class Cerrojo implements Piso {
 
@@ -14,15 +17,23 @@ public class Cerrojo implements Piso {
         return "CC";
     }
 
-
     @Override
     public GestorSonido.Sonido obtenerSonido() {
         return GestorSonido.Sonido.CERROJO;
     }
+
     @Override
-    public void alRecibirCaja(tablero.Tablero tablero, tablero.Celda celda, tablero.entidades.Caja caja) {
-        if (caja.puedeAbrirCerrojo()) {
-            tablero.abrirMuros();
-        }
+    public boolean esCerrojo() {
+        return true;
+    }
+
+    @Override
+    public void alRecibirCaja(Tablero tablero, Celda celda, Caja caja) {
+        tablero.actualizarEstadoMuros();
+    }
+
+    @Override
+    public void alSalirCaja(Tablero tablero, Celda celda, Caja caja) {
+        tablero.actualizarEstadoMuros();
     }
 }

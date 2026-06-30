@@ -2,7 +2,6 @@ package tablero;
 
 import tablero.background.Piso;
 
-
 public class Tablero {
 
     private final Celda[][] celdas;
@@ -43,6 +42,29 @@ public class Tablero {
             System.out.println();
         }
     }
+
+    public void actualizarEstadoMuros() {
+        if (existeCerrojoActivo()) {
+            abrirMuros();
+        } else {
+            cerrarMuros();
+        }
+    }
+
+    private boolean existeCerrojoActivo() {
+        for (int f = 0; f < obtenerFilas(); f++) {
+            for (int c = 0; c < obtenerColumnas(); c++) {
+                Celda celda = obtenerCelda(f, c);
+                if (celda.obtenerPiso().esCerrojo()
+                        && celda.obtenerEntidad().esCaja()
+                        && celda.obtenerEntidad().comoCaja().puedeAbrirCerrojo()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void abrirMuros() {
         for (int f = 0; f < obtenerFilas(); f++) {
             for (int c = 0; c < obtenerColumnas(); c++) {
@@ -56,12 +78,25 @@ public class Tablero {
         }
     }
 
+    public void cerrarMuros() {
+        for (int f = 0; f < obtenerFilas(); f++) {
+            for (int c = 0; c < obtenerColumnas(); c++) {
+                Celda celda = obtenerCelda(f, c);
+                Piso piso = celda.obtenerPiso();
+
+                if (piso.debeCerrarse()) {
+                    celda.establecerPiso(piso.cerrar());
+                }
+            }
+        }
+    }
+
     public boolean todosLosDestinosTienenCaja() {
         for (int f = 0; f < obtenerFilas(); f++) {
             for (int c = 0; c < obtenerColumnas(); c++) {
                 Celda celda = obtenerCelda(f, c);
 
-                if (celda.obtenerPiso().esDestino() && !celda.obtenerEntidad().esCaja()) {
+                if (celda.obtenerPiso().esDestino() && !celda.obtenerEntidad().puedeCumplirObjetivo()) {
                     return false;
                 }
             }

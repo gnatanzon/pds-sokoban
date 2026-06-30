@@ -20,8 +20,12 @@ public abstract class Caja implements Entidad {
         return this;
     }
 
+    @Override
+    public boolean puedeCumplirObjetivo() {
+        return true;
+    }
+
     public void despuesDeSerEmpujada(Tablero tablero, Celda celdaFinal) {
-        // Por defecto no hace nada
     }
 
     public boolean puedeAbrirCerrojo() {

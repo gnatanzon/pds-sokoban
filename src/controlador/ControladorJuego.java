@@ -5,6 +5,7 @@ import controlador.observer.ObservadorJuego;
 import sonido.GestorSonido;
 import tablero.Celda;
 import tablero.Tablero;
+import tablero.background.Piso;
 
 import tablero.entidades.*;
 import tablero.entidades.movimiento.*;
@@ -25,7 +26,6 @@ public class ControladorJuego extends KeyAdapter {
     private int jugadorFila;
     private int jugadorColumna;
     private boolean nivelTerminado = false;
-
 
     public ControladorJuego(Tablero tablero) {
         this.tablero = tablero;
@@ -77,7 +77,7 @@ public class ControladorJuego extends KeyAdapter {
     public void deshacerMovimiento() {
         if (nivelTerminado) return;
         if (historial.deshacer(tablero)) {
-            ubicarJugador(); // reubica al jugador desde el estado restaurado
+            ubicarJugador();
             notificarUndo();
         }
     }
@@ -100,7 +100,6 @@ public class ControladorJuego extends KeyAdapter {
             if (!intentarEmpujarCaja(nuevaFila, nuevaColumna, deltaFila, deltaColumna)) return;
         }
 
-        // Guardar estado ANTES de mover (para Memento)
         historial.guardar(tablero);
 
         tablero.obtenerCelda(jugadorFila, jugadorColumna).limpiarEntidad();
@@ -124,14 +123,14 @@ public class ControladorJuego extends KeyAdapter {
 
     private boolean intentarEmpujarCaja(int cajaFila, int cajaCol, int deltaFila, int deltaCol) {
         Celda celdaCaja    = tablero.obtenerCelda(cajaFila, cajaCol);
-        Celda celdaDestino = tablero.obtenerCelda(cajaFila + deltaFila, cajaCol + deltaCol); // ← agregar
+        Celda celdaDestino = tablero.obtenerCelda(cajaFila + deltaFila, cajaCol + deltaCol);
         Entidad entidad    = celdaCaja.obtenerEntidad();
 
         if (!entidad.esCaja()) return false;
 
         Caja caja = entidad.comoCaja();
+        Piso pisoOrigen = celdaCaja.obtenerPiso();
 
-        // Decidir la estrategia según el piso de DESTINO, no el de origen
         EstrategiaMovimiento estrategia = celdaDestino.obtenerPiso().obtenerEstrategiaMovimiento();
 
         ResultadoMovimiento resultado = estrategia.mover(
@@ -139,6 +138,8 @@ public class ControladorJuego extends KeyAdapter {
         );
 
         if (!resultado.isExito()) return false;
+
+        pisoOrigen.alSalirCaja(tablero, celdaCaja, caja);
 
         historial.registrarEmpuje();
         sonido.reproducir(caja.obtenerSonido());
@@ -154,6 +155,7 @@ public class ControladorJuego extends KeyAdapter {
     private boolean verificarNivelCompleto() {
         return tablero.todosLosDestinosTienenCaja();
     }
+
     public boolean puedeDeshacer() { return historial.puedeDeshacer(); }
     public int getUndosConsecutivos() { return historial.getUndosConsecutivos(); }
     public int getMaxUndosConsec()    { return historial.getMaxUndosConsec(); }

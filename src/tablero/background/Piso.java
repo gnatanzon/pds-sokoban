@@ -28,8 +28,14 @@ public interface Piso {
         return false;
     }
 
+    default boolean esCerrojo() {
+        return false;
+    }
+
     default void alRecibirCaja(Tablero tablero, Celda celda, Caja caja) {
-        // Por defecto no hace nada
+    }
+
+    default void alSalirCaja(Tablero tablero, Celda celda, Caja caja) {
     }
 
     default boolean debeAbrirse() {
@@ -37,6 +43,14 @@ public interface Piso {
     }
 
     default Piso abrir() {
+        return this;
+    }
+
+    default boolean debeCerrarse() {
+        return false;
+    }
+
+    default Piso cerrar() {
         return this;
     }
 }

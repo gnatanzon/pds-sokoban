@@ -23,4 +23,14 @@ public class MuroAbierto implements Piso {
     public boolean usaSonidoDelJugador() {
         return true;
     }
+
+    @Override
+    public boolean debeCerrarse() {
+        return true;
+    }
+
+    @Override
+    public Piso cerrar() {
+        return new MuroCerrado();
+    }
 }
