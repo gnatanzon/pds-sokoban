@@ -6,20 +6,6 @@ import controlador.memento.HistorialMovimientos;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Panel del HUD (Heads-Up Display) que muestra las estadísticas del nivel actual
- * y los botones de acción al jugador.
- *
- * Muestra: nivel actual, movimientos, empujes, undos disponibles.
- * Botones: Deshacer (undo) y Reiniciar nivel.
- *
- * GRASP – Pure Fabrication: clase de soporte que no existe en el dominio del juego.
- *
- * GRASP – High Cohesion: responsabilidad única de presentar el HUD.
- *
- * GRASP – Low Coupling: recibe callbacks (Runnable) en vez de referencias
- * directas al controlador, evitando acoplamiento con ControladorJuego.
- */
 public class PanelHUD extends JPanel {
 
     private static final Color COLOR_FONDO  = new Color(25, 25, 35);
@@ -35,10 +21,7 @@ public class PanelHUD extends JPanel {
     private final JButton btnDeshacer;
     private final JButton btnReiniciar;
 
-    /**
-     * @param accionDeshacer  se ejecuta al pulsar el botón "Deshacer"
-     * @param accionReiniciar se ejecuta al pulsar el botón "Reiniciar"
-     */
+
     public PanelHUD(Runnable accionDeshacer, Runnable accionReiniciar) {
         setBackground(COLOR_FONDO);
         setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
@@ -62,10 +45,7 @@ public class PanelHUD extends JPanel {
         add(btnReiniciar);
     }
 
-    /**
-     * Actualiza todas las etiquetas del HUD con los datos actuales del historial.
-     * Debe llamarse tras cada movimiento o undo.
-     */
+    //actualiza etiquetas HUD con los datos actuales del historial, se llama desp de cada movimiento o undo
     public void actualizar(HistorialMovimientos historial, GestorNiveles gestorNiveles) {
         int indice = gestorNiveles.obtenerIndiceActual() + 1;
         int total  = gestorNiveles.obtenerTotalNiveles();
@@ -74,7 +54,7 @@ public class PanelHUD extends JPanel {
         etEmpujes         .setText("Empujes: "        + historial.getTotalEmpujes());
         etUndosDisponibles.setText("Undos usados: "   + historial.getTotalUndos());
 
-        // Deshabilitar el botón si ya no se puede deshacer
+        //deshabilita undo cuando no se pueda hacer más
         btnDeshacer.setEnabled(historial.puedeDeshacer());
     }
 
@@ -92,7 +72,8 @@ public class PanelHUD extends JPanel {
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setBackground(colorFondo);
         btn.setForeground(Color.WHITE);
-        btn.setFocusable(false);       // No roba el foco del JFrame (necesario para KeyListener)
+        btn.setFocusable(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setBorderPainted(false);
         btn.setOpaque(true);
         btn.setPreferredSize(new Dimension(130, 30));

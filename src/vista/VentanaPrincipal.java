@@ -3,6 +3,7 @@ package vista;
 import controlador.ControladorJuego;
 import controlador.GestorNiveles;
 import controlador.memento.CalculadorPuntaje;
+import controlador.memento.HistorialMovimientos;
 import tablero.CargadorNivel;
 import tablero.Tablero;
 import tablero.constructor.FabricaElementosSokoban;
@@ -158,9 +159,14 @@ public class VentanaPrincipal extends JFrame {
 
     private JButton crearBoton(String texto, Runnable accion) {
         JButton btn = new JButton(texto);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setBackground(new Color(80, 80, 80));
+        btn.setForeground(Color.WHITE);
         btn.setFocusable(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(true);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(180, 30));
         btn.addActionListener(e -> accion.run());
         return btn;
     }
@@ -170,83 +176,37 @@ public class VentanaPrincipal extends JFrame {
     private void mostrarDialogoVictoria() {
         panelTablero.repaint();
 
-        int mov    = controladorActual.getHistorial().getTotalMovimientos();
-        int emp    = controladorActual.getHistorial().getTotalEmpujes();
-        int undos  = controladorActual.getHistorial().getTotalUndos();
+        // 1. Obtener historial y calcular puntaje
+        HistorialMovimientos historial = controladorActual.getHistorial();
         int movMin = tableroActual.obtenerMovMin();
-        int puntos = CalculadorPuntaje.calcular(mov, emp, undos, movMin);
-
-        String mensaje = String.format("""
-            ¡Nivel completado!
-            
-            Movimientos:  %d
-            Empujes:      %d
-            Undos usados: %d
-            
-            Puntaje final: %d
-            """, mov, emp, undos, puntos);
-
-        JOptionPane.showMessageDialog(this, mensaje, "Resumen", JOptionPane.INFORMATION_MESSAGE);
-
-        boolean hayMasNiveles = gestor.hayNivelSiguiente();
-        String nombreActual   = gestor.obtenerNombreNivel(gestor.obtenerNivelActual());
-
-        JPanel contenidoDialogo = construirContenidoVictoria(nombreActual);
-
-        String[] opciones = hayMasNiveles
-                ? new String[]{"Siguiente nivel", "Repetir", "Selector"}
-                : new String[]{"Repetir", "Selector"};
-
-        int respuesta = JOptionPane.showOptionDialog(
-                this,
-                contenidoDialogo,
-                "¡Nivel completado!",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                opciones,
-                opciones[0]
+        int puntos = CalculadorPuntaje.calcular(
+                historial.getTotalMovimientos(),
+                historial.getTotalEmpujes(),
+                historial.getTotalUndos(),
+                movMin
         );
 
-        manejarRespuestaVictoria(respuesta, hayMasNiveles);
-    }
-
-    private JPanel construirContenidoVictoria(String nombreNivel) {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
-
-        JLabel titulo = new JLabel("¡Nivel Superado!", SwingConstants.CENTER);
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 24));
-        titulo.setForeground(new Color(34, 139, 34));
-
-        JLabel sub = new JLabel("Completaste " + nombreNivel + " ✓", SwingConstants.CENTER);
-        sub.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        sub.setForeground(new Color(80, 80, 80));
-
-        // Muestra el nombre del personaje en la pantalla de victoria
-        JLabel lblJugador = new JLabel("Jugador: " + jugador.getNombre(), SwingConstants.CENTER);
-        lblJugador.setFont(new Font("SansSerif", Font.ITALIC, 12));
-        lblJugador.setForeground(new Color(100, 100, 100));
-
-        panel.add(titulo,     BorderLayout.NORTH);
-        panel.add(sub,        BorderLayout.CENTER);
-        panel.add(lblJugador, BorderLayout.SOUTH);
-        return panel;
-    }
-
-    private void manejarRespuestaVictoria(int respuesta, boolean hayMasNiveles) {
+        // 2. Desbloquear el nivel siguiente (ya que este fue superado)
         gestor.desbloquearSiguiente();
-        if (hayMasNiveles) {
-            switch (respuesta) {
-                case 0 -> avanzarAlSiguienteNivel();
-                case 1 -> reiniciarNivelActual();
-                default -> volverAlSelector();
-            }
-        } else {
-            if (respuesta == 0) reiniciarNivelActual();
-            else                volverAlSelector();
+
+        // 3. Crear y mostrar el diálogo modal (la ejecución se pausa acá hasta que el jugador hace clic)
+        DialogoResumenNivel dialogo = new DialogoResumenNivel(
+                this,
+                historial,
+                puntos,
+                gestor,
+                movMin
+        );
+        dialogo.setVisible(true);
+
+        // 4. Leer qué botón presionó y ejecutar la acción
+        switch (dialogo.getAccionElegida()) {
+            case SIGUIENTE_NIVEL -> avanzarAlSiguienteNivel();
+            case REINICIAR       -> reiniciarNivelActual();
+            case MENU_PRINCIPAL  -> volverAlSelector();
         }
     }
+
 
     // ── Navegación entre niveles ───────────────────────────────────────────────
 
