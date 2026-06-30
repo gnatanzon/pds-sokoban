@@ -63,7 +63,7 @@ public class VentanaPrincipal extends JFrame {
     // ── Vistas disponibles ──────────────────────────────────────────────
 
     private void mostrarSelector() {
-        SelectorNivel selector = new SelectorNivel(gestor, this::iniciarNivel);
+        SelectorNivel selector = new SelectorNivel(gestor, this::iniciarNivel, this::volverAlMenuPrincipal);
 
         contenedor.add(selector, VISTA_SELECTOR);
         cardLayout.show(contenedor, VISTA_SELECTOR);
@@ -72,6 +72,12 @@ public class VentanaPrincipal extends JFrame {
         setMinimumSize(new Dimension(400, 380));
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    private void volverAlMenuPrincipal() {
+        contenedor.removeAll();
+        contenedor.repaint();
+        mostrarPantallaCreacionPersonaje();
     }
 
     private void iniciarNivel(String rutaNivel) {

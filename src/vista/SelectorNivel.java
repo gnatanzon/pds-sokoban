@@ -8,9 +8,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.function.Consumer;
 
-/**
- * Panel que muestra los niveles disponibles
- */
+//Panel que muestra los niveles disponibles
 public class SelectorNivel extends JPanel {
 
     private static final Color COLOR_FONDO        = new Color(30, 30, 40);
@@ -22,10 +20,12 @@ public class SelectorNivel extends JPanel {
 
     private final GestorNiveles gestor;
     private final Consumer<String> onNivelSeleccionado;
+    private final Runnable onVolverMenu;
 
-    public SelectorNivel(GestorNiveles gestor, Consumer<String> onNivelSeleccionado) {
+    public SelectorNivel(GestorNiveles gestor, Consumer<String> onNivelSeleccionado, Runnable onVolverMenu) {
         this.gestor = gestor;
         this.onNivelSeleccionado = onNivelSeleccionado;
+        this.onVolverMenu = onVolverMenu;
         construirUI();
     }
 
@@ -54,10 +54,28 @@ public class SelectorNivel extends JPanel {
         subtitulo.setForeground(COLOR_SUBTITULO);
         subtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // instrucciones
+        JPanel cuadroInstrucciones = new JPanel(new BorderLayout());
+        cuadroInstrucciones.setBackground(new Color(40, 40, 20)); // Fondo oscuro levemente amarillento
+        cuadroInstrucciones.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_TITULO, 1), // Borde amarillo
+                BorderFactory.createEmptyBorder(6, 16, 6, 16)    // Margen interno
+        ));
+
+        cuadroInstrucciones.setMaximumSize(new Dimension(320, 32));
+        cuadroInstrucciones.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel instrucciones = new JLabel("Usá las flechas o WASD para mover al jugador", SwingConstants.CENTER);
+        instrucciones.setFont(new Font("SansSerif", Font.ITALIC, 12));
+        instrucciones.setForeground(COLOR_TITULO);
+        cuadroInstrucciones.add(instrucciones, BorderLayout.CENTER);
+
         panel.add(titulo);
         panel.add(Box.createVerticalStrut(8));
+        panel.add(cuadroInstrucciones);
+        panel.add(Box.createVerticalStrut(16));
         panel.add(subtitulo);
-        panel.add(Box.createVerticalStrut(30));
+        panel.add(Box.createVerticalStrut(24));
 
         return panel;
     }
@@ -123,11 +141,20 @@ public class SelectorNivel extends JPanel {
     private JPanel crearPie() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
 
-        JLabel instrucciones = new JLabel("Usá las flechas o WASD para mover al jugador");
-        instrucciones.setFont(new Font("SansSerif", Font.ITALIC, 12));
-        instrucciones.setForeground(new Color(120, 120, 140));
-        panel.add(instrucciones);
+        JButton btnVolver = new JButton("Menú Principal");
+        btnVolver.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnVolver.setBackground(new Color(80, 80, 80));
+        btnVolver.setForeground(Color.WHITE);
+        btnVolver.setFocusPainted(false);
+        btnVolver.setBorderPainted(false);
+        btnVolver.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnVolver.setPreferredSize(new Dimension(150, 35));
+
+        btnVolver.addActionListener(e -> onVolverMenu.run());
+
+        panel.add(btnVolver);
 
         return panel;
     }
