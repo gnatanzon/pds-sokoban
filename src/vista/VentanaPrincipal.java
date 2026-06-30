@@ -38,8 +38,10 @@ public class VentanaPrincipal extends JFrame {
 
     private void configurarVentana() {
         setTitle("Sokoban");
+        setUndecorated(true); //chau ventana win
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
+        contenedor.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 80), 2));
         setContentPane(contenedor);
     }
 
@@ -68,8 +70,7 @@ public class VentanaPrincipal extends JFrame {
         contenedor.add(selector, VISTA_SELECTOR);
         cardLayout.show(contenedor, VISTA_SELECTOR);
 
-        pack();
-        setMinimumSize(new Dimension(400, 380));
+        setSize(650, 650);
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -134,7 +135,8 @@ public class VentanaPrincipal extends JFrame {
         cardLayout.show(contenedor, VISTA_JUEGO);
 
         addKeyListener(controlador);
-        pack();
+
+        setSize(650, 650);
         setLocationRelativeTo(null);
         requestFocus();
     }

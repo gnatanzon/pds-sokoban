@@ -25,12 +25,12 @@ public class PanelHUD extends JPanel {
     public PanelHUD(Runnable accionDeshacer, Runnable accionReiniciar) {
         setBackground(COLOR_FONDO);
         setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
-        setLayout(new FlowLayout(FlowLayout.CENTER, 24, 4));
+        setLayout(new FlowLayout(FlowLayout.CENTER, 10, 4));
 
         etNivel              = crearEtiqueta("Nivel: -",         FUENTE_NIVEL, COLOR_TITULO);
         etMovimientos        = crearEtiqueta("Movs: 0",          FUENTE_STAT,  COLOR_TEXTO);
         etEmpujes            = crearEtiqueta("Empujes: 0",       FUENTE_STAT,  COLOR_TEXTO);
-        etUndosDisponibles   = crearEtiqueta("Undos usados: 0",  FUENTE_STAT,  COLOR_TEXTO);
+        etUndosDisponibles   = crearEtiqueta("Undos: 0",  FUENTE_STAT,  COLOR_TEXTO);
 
         btnDeshacer  = crearBoton("Undo",  new Color(70, 70, 150), accionDeshacer);
         btnReiniciar = crearBoton("Reiniciar", new Color(70, 110, 70), accionReiniciar);
@@ -52,7 +52,7 @@ public class PanelHUD extends JPanel {
         etNivel           .setText("Nivel " + indice + " / " + total);
         etMovimientos     .setText("Movs: "          + historial.getTotalMovimientos());
         etEmpujes         .setText("Empujes: "        + historial.getTotalEmpujes());
-        etUndosDisponibles.setText("Undos usados: "   + historial.getTotalUndos());
+        etUndosDisponibles.setText("Undos: "   + historial.getTotalUndos());
 
         //deshabilita undo cuando no se pueda hacer más
         btnDeshacer.setEnabled(historial.puedeDeshacer());
@@ -76,7 +76,7 @@ public class PanelHUD extends JPanel {
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setBorderPainted(false);
         btn.setOpaque(true);
-        btn.setPreferredSize(new Dimension(130, 30));
+        btn.setPreferredSize(new Dimension(110, 30));
         btn.addActionListener(e -> accion.run());
         return btn;
     }
