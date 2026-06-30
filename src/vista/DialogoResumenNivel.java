@@ -31,6 +31,7 @@ public class DialogoResumenNivel extends JDialog {
                                int movimientosMinimos) {
         super(padre, "¡Nivel Superado!", true);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); // forzar eleccion
+        setUndecorated(true);
         construirContenido(historial, puntaje, gestorNiveles, movimientosMinimos);
     }
 
@@ -41,7 +42,10 @@ public class DialogoResumenNivel extends JDialog {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(COLOR_FONDO);
-        panel.setBorder(new EmptyBorder(28, 48, 28, 48));
+
+        javax.swing.border.Border bordeExterior = BorderFactory.createLineBorder(new Color(60, 60, 80), 4);
+        javax.swing.border.Border paddingInterior = BorderFactory.createEmptyBorder(28, 48, 28, 48);
+        panel.setBorder(BorderFactory.createCompoundBorder(bordeExterior, paddingInterior));
 
         panel.add(centrar(etiqueta("¡Nivel Superado!", FUENTE_TITULO, COLOR_TITULO)));
         panel.add(espacio(8));
