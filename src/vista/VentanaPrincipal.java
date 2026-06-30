@@ -136,9 +136,28 @@ public class VentanaPrincipal extends JFrame {
 
         addKeyListener(controlador);
 
-        ajustarTamanoVentana(tablero);   // ← reemplaza el setSize(650, 650) fijo
+        // El tamaño de la ventana ahora se ajusta al tablero real (en vez de
+        // un 650x650 fijo), porque a partir del Nivel 3 los mapas son más
+        // grandes que eso y el tablero quedaba recortado/inaccesible.
+        ajustarTamanoVentana();
         setLocationRelativeTo(null);
         requestFocus();
+    }
+
+    private void ajustarTamanoVentana() {
+        pack(); // calcula el tamaño real según el contenido (HUD + tablero + footer)
+
+        Dimension minimo = new Dimension(650, 650);
+        Dimension preferido = getSize();
+        int ancho = Math.max(minimo.width, preferido.width);
+        int alto  = Math.max(minimo.height, preferido.height);
+
+        // No exceder el área visible de la pantalla
+        Dimension pantalla = Toolkit.getDefaultToolkit().getScreenSize();
+        ancho = Math.min(ancho, pantalla.width - 40);
+        alto  = Math.min(alto, pantalla.height - 40);
+
+        setSize(ancho, alto);
     }
 
     private void ajustarTamanoVentana(Tablero tablero) {
