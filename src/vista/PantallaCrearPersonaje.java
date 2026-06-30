@@ -105,6 +105,7 @@ public class PantallaCrearPersonaje extends JDialog {
         gbc.gridx = 1;
         gbc.weightx = 0.8;
         comboSprite = new JComboBox<>(OPCIONES_SPRITE);
+        aplicarEstiloOscuro(comboSprite);
         comboSprite.setFont(new Font("SansSerif", Font.BOLD, 13));
         comboSprite.addActionListener(e -> actualizarPreview());
         panel.add(comboSprite, gbc);
@@ -133,6 +134,7 @@ public class PantallaCrearPersonaje extends JDialog {
         gbc.gridx = 1;
         gbc.weightx = 0.8;
         comboSonido = new JComboBox<>(OPCIONES_SONIDO);
+        aplicarEstiloOscuro(comboSonido);
         comboSonido.setFont(new Font("SansSerif", Font.BOLD, 13));
         panel.add(comboSonido, gbc);
 
@@ -219,5 +221,27 @@ public class PantallaCrearPersonaje extends JDialog {
         btn.setOpaque(true);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return btn;
+    }
+
+    private void aplicarEstiloOscuro(JComboBox<String> combo) {
+        combo.setBackground(new Color(50, 50, 60));
+        combo.setForeground(Color.WHITE);
+        combo.setFont(new Font("SansSerif", Font.BOLD, 13));
+
+        //estilo lista desplegable
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (isSelected) {
+                    c.setBackground(new Color(80, 80, 100));
+                    c.setForeground(Color.WHITE);
+                } else {
+                    c.setBackground(new Color(50, 50, 60));
+                    c.setForeground(Color.WHITE);
+                }
+                return c;
+            }
+        });
     }
 }
