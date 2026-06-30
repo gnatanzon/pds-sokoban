@@ -40,7 +40,7 @@ public class VentanaPrincipal extends JFrame {
         setTitle("Sokoban");
         setUndecorated(true); //chau ventana win
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
+        setResizable(true);
         contenedor.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 80), 2));
         setContentPane(contenedor);
     }
@@ -136,9 +136,20 @@ public class VentanaPrincipal extends JFrame {
 
         addKeyListener(controlador);
 
-        setSize(650, 650);
+        ajustarTamanoVentana(tablero);   // ← reemplaza el setSize(650, 650) fijo
         setLocationRelativeTo(null);
         requestFocus();
+    }
+
+    private void ajustarTamanoVentana(Tablero tablero) {
+        int tamanoCelda = 64; // mismo valor que CargadorAssets.TAMANO_CELDA
+        int anchoTablero = tablero.obtenerColumnas() * tamanoCelda;
+        int altoTablero   = tablero.obtenerFilas()    * tamanoCelda;
+
+        int anchoMinimo = 650;
+        int altoExtra    = 140; // espacio reservado para HUD + panel inferior
+
+        setSize(Math.max(anchoMinimo, anchoTablero + 20), altoTablero + altoExtra);
     }
 
     private JPanel construirPanelJuego() {
