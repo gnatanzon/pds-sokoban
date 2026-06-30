@@ -16,10 +16,11 @@ public class GestorNiveles {
         this.niveles = detectarNiveles();
         this.indiceActual = 0;
     }
+
     private List<String> detectarNiveles() {
         List<String> encontrados = new ArrayList<>();
-        File directorio = new File("pds-sokoban");
-        File[] archivos = directorio.listFiles((dir, nombre )-> nombre.matches("Nivel\\d+\\.txt"));
+        File directorio = new File("."); // antes: new File("pds-sokoban")
+        File[] archivos = directorio.listFiles((dir, nombre) -> nombre.matches("Nivel\\d+\\.txt"));
 
         if (archivos != null) {
             for (File archivo : archivos) {
@@ -28,7 +29,6 @@ public class GestorNiveles {
             encontrados.sort(Comparator.comparingInt(GestorNiveles::extraerNumero));
         }
         return encontrados;
-
     }
 
     private static int extraerNumero(String nombreArchivo) {

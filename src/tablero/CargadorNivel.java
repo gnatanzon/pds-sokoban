@@ -54,7 +54,7 @@ public class CargadorNivel {
 
     private List<String> leerLineas(String rutaArchivo) throws IOException {
         List<String> lineas = new ArrayList<>();
-        try (BufferedReader lector = new BufferedReader(new FileReader("pds-sokoban/" + rutaArchivo))) {
+        try (BufferedReader lector = new BufferedReader(new FileReader(rutaArchivo))) { // sin "pds-sokoban/"
             String linea;
             while ((linea = lector.readLine()) != null) {
                 linea = linea.trim();

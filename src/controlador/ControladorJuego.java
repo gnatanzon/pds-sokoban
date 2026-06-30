@@ -123,22 +123,19 @@ public class ControladorJuego extends KeyAdapter {
     }
 
     private boolean intentarEmpujarCaja(int cajaFila, int cajaCol, int deltaFila, int deltaCol) {
-        Celda celdaCaja = tablero.obtenerCelda(cajaFila, cajaCol);
-        Entidad entidad = celdaCaja.obtenerEntidad();
+        Celda celdaCaja    = tablero.obtenerCelda(cajaFila, cajaCol);
+        Celda celdaDestino = tablero.obtenerCelda(cajaFila + deltaFila, cajaCol + deltaCol); // ← agregar
+        Entidad entidad    = celdaCaja.obtenerEntidad();
 
         if (!entidad.esCaja()) return false;
 
         Caja caja = entidad.comoCaja();
 
-        EstrategiaMovimiento estrategia = celdaCaja.obtenerPiso().obtenerEstrategiaMovimiento();
+        // Decidir la estrategia según el piso de DESTINO, no el de origen
+        EstrategiaMovimiento estrategia = celdaDestino.obtenerPiso().obtenerEstrategiaMovimiento();
 
         ResultadoMovimiento resultado = estrategia.mover(
-                tablero,
-                cajaFila,
-                cajaCol,
-                deltaFila,
-                deltaCol,
-                caja
+                tablero, cajaFila, cajaCol, deltaFila, deltaCol, caja
         );
 
         if (!resultado.isExito()) return false;
