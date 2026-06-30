@@ -1,48 +1,47 @@
 package tablero.entidades.movimiento;
 
 import tablero.Tablero;
-import tablero.background.PisoResbaladizo;
 import tablero.entidades.Entidad;
+
 
 public class MovimientoResbaladizo implements EstrategiaMovimiento {
 
     @Override
     public ResultadoMovimiento mover(Tablero tablero, int filaOrigen, int colOrigen,
                                      int deltaFila, int deltaCol, Entidad entidad) {
-        // Primero verificamos que la celda destino inmediata esté libre
+
         int destFila = filaOrigen + deltaFila;
         int destCol  = colOrigen  + deltaCol;
 
-        if (!tablero.dentroDelBorde(destFila, destCol)) {
-            return new ResultadoMovimiento(filaOrigen, colOrigen, false);
-        }
-        if (!tablero.obtenerCelda(destFila, destCol).estaLibre()) {
+        if (!tablero.dentroDelBorde(destFila, destCol)
+                || !tablero.obtenerCelda(destFila, destCol).estaLibre()) {
             return new ResultadoMovimiento(filaOrigen, colOrigen, false);
         }
 
-        // Deslizamos mientras el piso siguiente sea resbaladizo y esté libre
+        boolean disparaDeslizamiento =
+                tablero.obtenerCelda(destFila, destCol).obtenerPiso().permiteDeslizamiento();
+
+        int filaFinal = destFila;
+        int colFinal  = destCol;
+
+        if (disparaDeslizamiento) {
+            while (true) {
+                int filaSiguiente = filaFinal + deltaFila;
+                int colSiguiente  = colFinal  + deltaCol;
+
+                boolean puedeAvanzar = tablero.dentroDelBorde(filaSiguiente, colSiguiente)
+                        && tablero.obtenerCelda(filaSiguiente, colSiguiente).estaLibre();
+
+                if (!puedeAvanzar) break;
+
+                filaFinal = filaSiguiente;
+                colFinal  = colSiguiente;
+            }
+        }
+
         tablero.obtenerCelda(filaOrigen, colOrigen).limpiarEntidad();
+        tablero.obtenerCelda(filaFinal, colFinal).establecerEntidad(entidad);
 
-        int filaActual = destFila;
-        int colActual  = destCol;
-
-        while (true) {
-            tablero.obtenerCelda(filaActual, colActual).establecerEntidad(entidad);
-
-            int siguienteFila = filaActual + deltaFila;
-            int siguienteCol  = colActual  + deltaCol;
-
-            boolean puedeAvanzar = tablero.obtenerCelda(filaActual, colActual).obtenerPiso() instanceof PisoResbaladizo
-                    && tablero.dentroDelBorde(siguienteFila, siguienteCol)
-                    && tablero.obtenerCelda(siguienteFila, siguienteCol).estaLibre();
-
-            if (!puedeAvanzar) break;
-
-            tablero.obtenerCelda(filaActual, colActual).limpiarEntidad();
-            filaActual = siguienteFila;
-            colActual  = siguienteCol;
-        }
-
-        return new ResultadoMovimiento(filaActual, colActual, true);
+        return new ResultadoMovimiento(filaFinal, colFinal, true);
     }
 }
