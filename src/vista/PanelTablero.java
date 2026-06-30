@@ -17,6 +17,8 @@ public class PanelTablero extends JPanel {
         this.assets = assets;
         this.tamanoCelda = assets.obtenerTamanoCelda();
         ajustarTamano();
+
+        setOpaque(false);
     }
 
     private void ajustarTamano() {

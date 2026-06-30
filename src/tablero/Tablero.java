@@ -8,11 +8,13 @@ public class Tablero {
     private final Celda[][] celdas;
     private final int filas;
     private final int columnas;
+    private final int movMin;
 
-    public Tablero(Celda[][] celdas) {
+    public Tablero(Celda[][] celdas, int movMin) {
         this.celdas = celdas;
         this.filas = celdas.length;
         this.columnas = celdas[0].length;
+        this.movMin = movMin;
     }
 
     public Celda obtenerCelda(int fila, int columna) {
@@ -26,6 +28,8 @@ public class Tablero {
     public int obtenerColumnas() {
         return columnas;
     }
+
+    public int obtenerMovMin() { return movMin; }
 
     public boolean dentroDelBorde(int fila, int columna) {
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;

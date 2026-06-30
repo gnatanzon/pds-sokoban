@@ -21,9 +21,11 @@ public class VentanaPrincipal extends JFrame {
 
     private final GestorNiveles gestor;
     private PanelTablero panelTablero;
+    private PanelHUD panelHUD;
 
     // El jugador se crea una sola vez al inicio y se reutiliza en todos los niveles
     private Jugador jugador;
+    private Tablero tableroActual;
 
     public VentanaPrincipal() {
         this.gestor = new GestorNiveles();
@@ -80,21 +82,36 @@ public class VentanaPrincipal extends JFrame {
         }
     }
 
-    private ControladorJuego controladorActual; // agregá este campo a la clase
+    private ControladorJuego controladorActual;
 
     private void cargarYMostrarNivel(String rutaNivel) throws Exception {
         FabricaElementosSokoban fabrica = new FabricaElementosSokoban(jugador);
         CargadorNivel cargador = new CargadorNivel(fabrica);
         Tablero tablero = cargador.cargar(rutaNivel);
+        this.tableroActual = tablero;
 
         CargadorAssets assets = new CargadorAssets(jugador);
         panelTablero = new PanelTablero(tablero, assets);
 
         controladorActual = new ControladorJuego(tablero);
+
+        panelHUD = new PanelHUD(
+                () -> { if (controladorActual != null) controladorActual.deshacerMovimiento(); },
+                this::reiniciarNivelActual
+        );
+        panelHUD.actualizar(controladorActual.getHistorial(), gestor);// HUD inicia con datos en cero
+
+        // el observador actualiza el HUD
         controladorActual.agregarObservador(new controlador.observer.ObservadorJuego() {
-            @Override public void onMovimiento()    { panelTablero.repaint(); }
+            @Override public void onMovimiento() {
+                panelTablero.repaint();
+                panelHUD.actualizar(controladorActual.getHistorial(), gestor);
+            }
             @Override public void onNivelSuperado() { SwingUtilities.invokeLater(VentanaPrincipal.this::mostrarDialogoVictoria); }
-            @Override public void onUndo()          { panelTablero.repaint(); }
+            @Override public void onUndo() {
+                panelTablero.repaint();
+                panelHUD.actualizar(controladorActual.getHistorial(), gestor);
+            }
         });
 
         reemplazarVistaJuego(tablero, controladorActual);
@@ -117,28 +134,27 @@ public class VentanaPrincipal extends JFrame {
 
     private JPanel construirPanelJuego() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(panelTablero, BorderLayout.CENTER);
-        panel.add(crearPanelBotones(), BorderLayout.SOUTH);
+
+        panel.add(panelHUD, BorderLayout.NORTH);
+        JPanel contenedorCentro = new JPanel(new GridBagLayout());
+        contenedorCentro.setBackground(new Color(30, 30, 40));
+        contenedorCentro.add(panelTablero);
+
+        panel.add(contenedorCentro, BorderLayout.CENTER);
+
+        // panel para volver al selector
+        JPanel panelSur = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panelSur.setBackground(new Color(40, 40, 40));
+        JButton btnSelector = crearBoton("Selector de niveles", this::volverAlSelector);
+        panelSur.add(btnSelector);
+
+        panel.add(panelSur, BorderLayout.SOUTH);
+
         return panel;
     }
 
     // ── Panel de botones ───────────────────────────────────────────
 
-    private JPanel crearPanelBotones() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 6));
-        panel.setBackground(new Color(40, 40, 40));
-
-        JButton btnUndo      = crearBoton("↩ Undo", () -> {
-            if (controladorActual != null) controladorActual.deshacerMovimiento();
-        });
-        JButton btnReiniciar = crearBoton("🔄 Reiniciar", this::reiniciarNivelActual);
-        JButton btnSelector  = crearBoton("📋 Selector de niveles", this::volverAlSelector);
-
-        panel.add(btnUndo);
-        panel.add(btnSelector);
-        panel.add(btnReiniciar);
-        return panel;
-    }
 
     private JButton crearBoton(String texto, Runnable accion) {
         JButton btn = new JButton(texto);
@@ -157,7 +173,8 @@ public class VentanaPrincipal extends JFrame {
         int mov    = controladorActual.getHistorial().getTotalMovimientos();
         int emp    = controladorActual.getHistorial().getTotalEmpujes();
         int undos  = controladorActual.getHistorial().getTotalUndos();
-        int puntos = CalculadorPuntaje.calcular(mov, emp, undos);
+        int movMin = tableroActual.obtenerMovMin();
+        int puntos = CalculadorPuntaje.calcular(mov, emp, undos, movMin);
 
         String mensaje = String.format("""
             ¡Nivel completado!

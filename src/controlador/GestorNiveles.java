@@ -16,10 +16,9 @@ public class GestorNiveles {
         this.niveles = detectarNiveles();
         this.indiceActual = 0;
     }
-
     private List<String> detectarNiveles() {
         List<String> encontrados = new ArrayList<>();
-        File directorio = new File(".");
+        File directorio = new File("pds-sokoban");
         File[] archivos = directorio.listFiles((dir, nombre )-> nombre.matches("Nivel\\d+\\.txt"));
 
         if (archivos != null) {

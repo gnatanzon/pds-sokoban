@@ -6,6 +6,7 @@ import tablero.entidades.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,17 +33,11 @@ public class CargadorAssets {
     }
 
     private void cargarImagen(Class<?> clase, String nombreArchivo) {
-        String ruta = "Assets/" + nombreArchivo;
-
-        ImageIcon icono = new ImageIcon(ruta);
-
-        if (icono.getIconWidth() > 0) {
-            Image imagen = icono.getImage()
-                    .getScaledInstance(TAMANO_CELDA, TAMANO_CELDA, Image.SCALE_SMOOTH);
-
-            imagenes.put(clase, new ImageIcon(imagen));
+        URL url = getClass().getResource("/" + nombreArchivo);
+        if (url != null) {
+            imagenes.put(clase, new ImageIcon(url));
         } else {
-            System.err.println("No se encontró el asset: " + ruta);
+            System.err.println("No se encontró el asset: " + nombreArchivo);
         }
     }
 
