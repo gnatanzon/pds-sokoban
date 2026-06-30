@@ -21,6 +21,7 @@ public class FabricaElementosSokoban implements FabricaElementos {
             case 4: return new Cerrojo();
             case 5: return new MuroCerrado();
             case 6: return new MuroAbierto();
+            case 7: return new ParedDestructible();
             default: throw new IllegalArgumentException("Código de piso desconocido: " + codigo);
         }
     }
@@ -33,6 +34,7 @@ public class FabricaElementosSokoban implements FabricaElementos {
             case 2: return new CajaNormal();
             case 3: return new CajaFragil();
             case 4: return new CajaLlave();
+            case 5: return new CajaExplosiva();
             default: throw new IllegalArgumentException("Código de entidad desconocido: " + codigo);
         }
     }

@@ -97,7 +97,10 @@ public class ControladorJuego extends KeyAdapter {
 
         if (destino.tieneEntidad()) {
             if (!destino.obtenerEntidad().esCaja()) return;
-            if (!intentarEmpujarCaja(nuevaFila, nuevaColumna, deltaFila, deltaColumna)) return;
+            if (!intentarEmpujarCaja(nuevaFila, nuevaColumna, deltaFila, deltaColumna)) {
+                notificarMovimiento();
+                return;
+            }
         }
 
         historial.guardar(tablero);
@@ -129,7 +132,6 @@ public class ControladorJuego extends KeyAdapter {
         if (!entidad.esCaja()) return false;
 
         Caja caja = entidad.comoCaja();
-        Piso pisoOrigen = celdaCaja.obtenerPiso();
 
         EstrategiaMovimiento estrategia = celdaDestino.obtenerPiso().obtenerEstrategiaMovimiento();
 
@@ -137,16 +139,19 @@ public class ControladorJuego extends KeyAdapter {
                 tablero, cajaFila, cajaCol, deltaFila, deltaCol, caja
         );
 
-        if (!resultado.isExito()) return false;
-
-        pisoOrigen.alSalirCaja(tablero, celdaCaja, caja);
+        if (!resultado.isExito()) {
+            if (celdaDestino.obtenerPiso().esSolido()) {
+                caja.alChocarConObstaculo(tablero, cajaFila, cajaCol);
+            }
+            return false;
+        }
 
         historial.registrarEmpuje();
         sonido.reproducir(caja.obtenerSonido());
 
         Celda celdaFinal = tablero.obtenerCelda(resultado.getFilaFinal(), resultado.getColFinal());
 
-        caja.despuesDeSerEmpujada(tablero, celdaFinal);
+        caja.despuesDeSerEmpujada(tablero, resultado.getFilaFinal(), resultado.getColFinal());
         celdaFinal.obtenerPiso().alRecibirCaja(tablero, celdaFinal, caja);
 
         return true;

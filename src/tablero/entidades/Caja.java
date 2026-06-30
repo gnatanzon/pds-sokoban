@@ -1,31 +1,35 @@
 package tablero.entidades;
 
-import tablero.Celda;
 import tablero.Tablero;
+import tablero.entidades.choque.ComportamientoDeChoque;
 
 public abstract class Caja implements Entidad {
 
-    @Override
-    public boolean esSolida() {
-        return true;
+    private final ComportamientoDeChoque comportamientoDeChoque;
+
+    protected Caja(ComportamientoDeChoque comportamientoDeChoque) {
+        this.comportamientoDeChoque = comportamientoDeChoque;
     }
 
     @Override
-    public boolean esCaja() {
-        return true;
-    }
+    public boolean esSolida() { return true; }
 
     @Override
-    public Caja comoCaja() {
-        return this;
-    }
+    public boolean esCaja() { return true; }
 
     @Override
-    public boolean puedeCumplirObjetivo() {
-        return true;
+    public Caja comoCaja() { return this; }
+
+    public void despuesDeSerEmpujada(Tablero tablero, int fila, int columna) {
+        comportamientoDeChoque.alSerEmpujada(tablero, fila, columna, this);
     }
 
-    public void despuesDeSerEmpujada(Tablero tablero, Celda celdaFinal) {
+    public void alChocarConObstaculo(Tablero tablero, int fila, int columna) {
+        comportamientoDeChoque.alChocarConObstaculo(tablero, fila, columna, this);
+    }
+
+    public void alDetonarVecino(Tablero tablero, int fila, int columna) {
+        comportamientoDeChoque.alDetonarVecino(tablero, fila, columna, this);
     }
 
     public boolean puedeAbrirCerrojo() {

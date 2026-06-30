@@ -20,6 +20,7 @@ public class GestorSonido {
         CAJA                ("Caja.wav"),
         CAJA_FRAGIL_ROTA    ("CajaFragilRota.wav");
 
+
         private final String archivo;
 
         Sonido(String archivo) {

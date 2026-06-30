@@ -46,6 +46,14 @@ public interface Piso {
         return this;
     }
 
+    default boolean esDestructible() {
+        return false;
+    }
+
+    default Piso destruir() {
+        return this;
+    }
+
     default boolean debeCerrarse() {
         return false;
     }

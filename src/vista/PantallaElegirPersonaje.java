@@ -28,7 +28,11 @@ public class PantallaElegirPersonaje extends JDialog {
     private static final Color COLOR_TEXTO  = Color.WHITE;
 
     public PantallaElegirPersonaje(JFrame parent) {
+<<<<<<< Updated upstream
         super(parent, "Elegir Personaje", true);
+=======
+        super(parent, "Crear Personaje", true);
+>>>>>>> Stashed changes
         setUndecorated(true);
         initUI();
 

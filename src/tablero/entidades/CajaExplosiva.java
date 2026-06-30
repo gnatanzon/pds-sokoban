@@ -1,18 +1,16 @@
 package tablero.entidades;
 
 import sonido.GestorSonido;
-import tablero.entidades.choque.ChoqueInerte;
+import tablero.entidades.choque.ChoqueExplosivo;
 
-public class CajaNormal extends Caja {
+public class CajaExplosiva extends Caja {
 
-    public CajaNormal() {
-        super(new ChoqueInerte());
+    public CajaExplosiva() {
+        super(new ChoqueExplosivo());
     }
 
-    public boolean esCajaNormal() { return true; }
-
     @Override
-    public String obtenerSimbolo() { return "CN"; }
+    public String obtenerSimbolo() { return "CE"; }
 
     @Override
     public GestorSonido.Sonido obtenerSonido() {

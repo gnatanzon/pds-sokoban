@@ -27,4 +27,14 @@ public class MuroCerrado implements Piso {
     public Piso abrir() {
         return new MuroAbierto();
     }
+
+    @Override
+    public boolean esDestructible() {
+        return true;
+    }
+
+    @Override
+    public Piso destruir() {
+        return abrir();
+    }
 }

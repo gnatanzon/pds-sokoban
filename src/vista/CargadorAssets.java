@@ -24,12 +24,14 @@ public class CargadorAssets {
         cargarImagen(Cerrojo.class,         "Cerrojo.png");
         cargarImagen(MuroCerrado.class,     "MuroCerrado.png");
         cargarImagen(MuroAbierto.class,     "MuroAbierto.png");
+        cargarImagen(ParedDestructible.class, "ParedDestructible.png");
 
         // Usa el sprite elegido por el jugador en lugar de "Jugador.png" fijo
         cargarImagen(Jugador.class,         jugador.getSpritePath());
         cargarImagen(CajaNormal.class,      "CajaNormal.png");
         cargarImagen(CajaFragil.class,      "CajaFragil.png");
         cargarImagen(CajaLlave.class,       "CajaLlave.png");
+        cargarImagen(CajaExplosiva.class,     "CajaExplosiva.png");
     }
 
     private void cargarImagen(Class<?> clase, String nombreArchivo) {
