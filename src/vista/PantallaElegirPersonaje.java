@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 
-public class PantallaCrearPersonaje extends JDialog {
+public class PantallaElegirPersonaje extends JDialog {
 
     private Jugador jugador = null;
 
@@ -16,10 +16,10 @@ public class PantallaCrearPersonaje extends JDialog {
     private JLabel labelPreview;
 
     private static final String[] OPCIONES_SPRITE = {
-            "Humano", "Ninja", "Otto"
+            "Humano", "Ottoman", "Otto"
     };
     private static final String[] OPCIONES_SONIDO = {
-            "Sonido 1", "Sonido 2", "Sonido 3"
+            "Sonido Gnérico", "Sonido Robot", "Sonido Gatito"
     };
 
 
@@ -27,8 +27,8 @@ public class PantallaCrearPersonaje extends JDialog {
     private static final Color COLOR_TITULO = new Color(255, 215, 0);
     private static final Color COLOR_TEXTO  = Color.WHITE;
 
-    public PantallaCrearPersonaje(JFrame parent) {
-        super(parent, "Crear Personaje", true);
+    public PantallaElegirPersonaje(JFrame parent) {
+        super(parent, "Elegir Personaje", true);
         setUndecorated(true);
         initUI();
 

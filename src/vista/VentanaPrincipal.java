@@ -48,7 +48,7 @@ public class VentanaPrincipal extends JFrame {
     // ── Creación del personaje con el Builder ───────────────────────────────────────────
 
     private void mostrarPantallaCreacionPersonaje() {
-        PantallaCrearPersonaje pantalla = new PantallaCrearPersonaje(this);
+        PantallaElegirPersonaje pantalla = new PantallaElegirPersonaje(this);
         pantalla.setVisible(true); // bloquea hasta que el usuario confirma o cancela
 
         jugador = pantalla.getJugador();
