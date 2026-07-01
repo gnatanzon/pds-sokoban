@@ -2,9 +2,11 @@ package vista;
 
 import controlador.GestorNiveles;
 import controlador.memento.HistorialMovimientos;
-
+import sonido.GestorSonido;
+import java.awt.image.BufferedImage;
 import javax.swing.*;
 import java.awt.*;
+
 
 public class PanelHUD extends JPanel {
 
@@ -20,6 +22,8 @@ public class PanelHUD extends JPanel {
     private final JLabel etUndosDisponibles;
     private final JButton btnDeshacer;
     private final JButton btnReiniciar;
+    private final JButton btnMute;
+    private final JSlider sliderVolumen;
 
 
     public PanelHUD(Runnable accionDeshacer, Runnable accionReiniciar) {
@@ -34,6 +38,28 @@ public class PanelHUD extends JPanel {
 
         btnDeshacer  = crearBoton("Undo",  new Color(70, 70, 150), accionDeshacer);
         btnReiniciar = crearBoton("Reiniciar", new Color(70, 110, 70), accionReiniciar);
+        btnMute = new JButton();
+        btnMute.setPreferredSize(new Dimension(ICONO_ANCHO + 10, 30));
+        btnMute.setBackground(new Color(120, 90, 40));
+        btnMute.setFocusable(false);
+        btnMute.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnMute.setBorderPainted(false);
+        btnMute.setOpaque(true);
+        actualizarIconoMute(); // pinta el ícono inicial
+        btnMute.addActionListener(e -> {
+            GestorSonido.obtenerInstancia().alternarSilencio();
+            actualizarIconoMute();
+        });
+
+        sliderVolumen = new JSlider(0, 100, 100);
+        sliderVolumen.setPreferredSize(new Dimension(80, 30));
+        sliderVolumen.setBackground(COLOR_FONDO);
+        sliderVolumen.setOpaque(true);
+        sliderVolumen.setFocusable(false);   // NUEVO: evita que le robe el foco al juego
+        sliderVolumen.addChangeListener(e -> {
+            float valor = sliderVolumen.getValue() / 100f;
+            GestorSonido.obtenerInstancia().establecerVolumen(valor);
+        });
 
         add(etNivel);
         add(separador());
@@ -43,6 +69,48 @@ public class PanelHUD extends JPanel {
         add(separador());
         add(btnDeshacer);
         add(btnReiniciar);
+        add(btnMute);
+        add(sliderVolumen);
+    }
+
+    private static final int ICONO_ANCHO = 44;
+    private static final int ICONO_ALTO  = 30;
+
+    private void actualizarIconoMute() {
+        boolean silenciado = GestorSonido.obtenerInstancia().estaSilenciado();
+
+        BufferedImage icono = new BufferedImage(ICONO_ANCHO, ICONO_ALTO, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = icono.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setColor(Color.WHITE);
+        g.setStroke(new BasicStroke(2));
+
+        int cx = 13, cy = 15;
+
+        // cuerpo del parlante (polígono tipo "home plate")
+        Polygon cuerpo = new Polygon();
+        cuerpo.addPoint(cx - 10, cy - 3);
+        cuerpo.addPoint(cx - 4,  cy - 3);
+        cuerpo.addPoint(cx + 4,  cy - 9);
+        cuerpo.addPoint(cx + 4,  cy + 9);
+        cuerpo.addPoint(cx - 4,  cy + 3);
+        cuerpo.addPoint(cx - 10, cy + 3);
+        g.fillPolygon(cuerpo);
+
+        if (silenciado) {
+            g.drawLine(cx + 8,  cy - 7, cx + 18, cy + 7);
+            g.drawLine(cx + 18, cy - 7, cx + 8,  cy + 7);
+        } else {
+            g.drawArc(cx + 4, cy - 6,  12, 12, -45, 90);
+            g.drawArc(cx + 9, cy - 10, 20, 20, -45, 90);
+        }
+
+        g.dispose();
+        btnMute.setIcon(new ImageIcon(icono));
+    }
+
+    private String textoMute() {
+        return GestorSonido.obtenerInstancia().estaSilenciado() ? "🔇" : "🔊";
     }
 
     //actualiza etiquetas HUD con los datos actuales del historial, se llama desp de cada movimiento o undo

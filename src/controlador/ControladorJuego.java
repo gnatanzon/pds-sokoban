@@ -127,6 +127,7 @@ public class ControladorJuego extends KeyAdapter {
 
         if (verificarNivelCompleto()) {
             nivelTerminado = true;
+            sonido.reproducir(GestorSonido.Sonido.VICTORIA);   // NUEVO
             notificarNivelSuperado();
         }
     }
