@@ -19,7 +19,7 @@ public class PantallaElegirPersonaje extends JDialog {
             "Humano", "Ottoman", "Otto"
     };
     private static final String[] OPCIONES_SONIDO = {
-            "Sonido Gnérico", "Sonido Robot", "Sonido Gatito"
+            "Genérico", "Robótico", "Gatuno"
     };
 
 
