@@ -15,11 +15,15 @@ public class CajaFragil extends Caja implements EntidadConEstado<EstadoFragil> {
         this.estado = new EstadoResistente(RESISTENCIA_INICIAL);
     }
 
+    @Override
     public void recibirEmpuje() {
         estado = estado.recibirEmpuje();
     }
 
-    public boolean estaRota() { return estado.estaRota(); }
+    @Override
+    public boolean estaRota() {
+        return estado.estaRota();
+    }
 
     public int obtenerResistencia() { return estado.obtenerResistencia(); }
 
@@ -43,6 +47,8 @@ public class CajaFragil extends Caja implements EntidadConEstado<EstadoFragil> {
 
     @Override
     public boolean puedeCumplirObjetivo() { return true; }
+
+
 
     /*@Override
     public void despuesDeSerEmpujada(tablero.Tablero tablero, tablero.Celda celdaFinal) {

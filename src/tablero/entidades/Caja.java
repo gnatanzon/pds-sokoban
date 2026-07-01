@@ -32,6 +32,14 @@ public abstract class Caja implements Entidad {
         comportamientoDeChoque.alDetonarVecino(tablero, fila, columna, this);
     }
 
+    public void recibirEmpuje() {
+    }
+
+    /** Por defecto, una caja nunca "está rota". Solo CajaFragil lo redefine. */
+    public boolean estaRota() {
+        return false;
+    }
+
     public boolean puedeAbrirCerrojo() {
         return false;
     }

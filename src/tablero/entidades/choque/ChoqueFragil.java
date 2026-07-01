@@ -9,15 +9,14 @@ public class ChoqueFragil implements ComportamientoDeChoque {
 
     @Override
     public void alSerEmpujada(Tablero tablero, int fila, int columna, Caja caja) {
-        if (!(caja instanceof CajaFragil cajaFragil)) return;
+        caja.recibirEmpuje();
 
-        cajaFragil.recibirEmpuje();
-
-        if (cajaFragil.estaRota()) {
+        if (caja.estaRota()) {
             tablero.obtenerCelda(fila, columna).limpiarEntidad();
             notificarVecinos(tablero, fila, columna);
         }
     }
+
 
     private void notificarVecinos(Tablero tablero, int fila, int columna) {
         for (int df = -1; df <= 1; df++) {

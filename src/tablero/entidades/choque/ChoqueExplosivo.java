@@ -24,7 +24,7 @@ public class ChoqueExplosivo implements ComportamientoDeChoque {
     }
 
     private void detonar(Tablero tablero, int fila, int columna) {
-        //GestorSonido.obtenerInstancia().reproducir(GestorSonido.Sonido.EXPLOSION);
+        GestorSonido.obtenerInstancia().reproducir(GestorSonido.Sonido.EXPLOSION);
 
         for (int df = -1; df <= 1; df++) {
             for (int dc = -1; dc <= 1; dc++) {

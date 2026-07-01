@@ -18,6 +18,7 @@ public class MuroCerrado implements Piso {
     public GestorSonido.Sonido obtenerSonido() {
         return GestorSonido.Sonido.PARED;
     }
+
     @Override
     public boolean debeAbrirse() {
         return true;
@@ -28,13 +29,4 @@ public class MuroCerrado implements Piso {
         return new MuroAbierto();
     }
 
-    @Override
-    public boolean esDestructible() {
-        return true;
-    }
-
-    @Override
-    public Piso destruir() {
-        return abrir();
-    }
 }

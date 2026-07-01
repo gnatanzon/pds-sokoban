@@ -18,7 +18,8 @@ public class GestorSonido {
         PISO_RESBALADIZO    ("PisoResbaladizo.wav"),
         CERROJO             ("Cerrojo.wav"),
         CAJA                ("Caja.wav"),
-        CAJA_FRAGIL_ROTA    ("CajaFragilRota.wav");
+        CAJA_FRAGIL_ROTA    ("CajaFragilRota.wav"),
+        EXPLOSION           ("Explosion.wav");   // <-- nueva constante
 
 
         private final String archivo;
