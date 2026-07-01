@@ -103,19 +103,22 @@ public class DialogoResumenNivel extends JDialog {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
         panelBotones.setBackground(COLOR_FONDO);
 
+        // 1. menú principal a la izquierda
+        JButton btnMenu = crearBoton("Menú Principal", new Color(80, 80, 80));
+        btnMenu.addActionListener(e -> elegir(Accion.MENU_PRINCIPAL));
+        panelBotones.add(btnMenu);
+
+        // 2. repetir al centro
+        JButton btnReiniciar = crearBoton("Repetir", new Color(60, 60, 150));
+        btnReiniciar.addActionListener(e -> elegir(Accion.REINICIAR));
+        panelBotones.add(btnReiniciar);
+
+        // 3. siguiente a la derecha (si es que hay un nivel siguiente)
         if (gestorNiveles.hayNivelSiguiente()) {
             JButton btnSiguiente = crearBoton("Siguiente", new Color(0, 130, 0));
             btnSiguiente.addActionListener(e -> elegir(Accion.SIGUIENTE_NIVEL));
             panelBotones.add(btnSiguiente);
         }
-
-        JButton btnReiniciar = crearBoton("Repetir", new Color(60, 60, 150));
-        btnReiniciar.addActionListener(e -> elegir(Accion.REINICIAR));
-        panelBotones.add(btnReiniciar);
-
-        JButton btnMenu = crearBoton("Menú Principal", new Color(80, 80, 80));
-        btnMenu.addActionListener(e -> elegir(Accion.MENU_PRINCIPAL));
-        panelBotones.add(btnMenu);
 
         return panelBotones;
     }
