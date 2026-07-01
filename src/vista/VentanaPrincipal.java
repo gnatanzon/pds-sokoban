@@ -31,7 +31,20 @@ public class VentanaPrincipal extends JFrame {
     public VentanaPrincipal() {
         this.gestor = new GestorNiveles();
         configurarVentana();
-        mostrarPantallaCreacionPersonaje(); // primero el Builder, luego el selector
+        mostrarVentanaInicio();
+    }
+
+    // ── pantalla de inicio (logo + Jugar/Salir) ─────────────────────────────
+
+    private void mostrarVentanaInicio() {
+        VentanaInicio inicio = new VentanaInicio(this);
+        inicio.setVisible(true); // bloquea hasta que el usuario elige
+
+        if (!inicio.isJugarSeleccionado()) {
+            System.exit(0); // cerró la ventana sin apretar "Jugar"
+        }
+
+        mostrarPantallaCreacionPersonaje();
     }
 
     // ── Formato de la ventana principal ────────────────────────────────────────────────

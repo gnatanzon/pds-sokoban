@@ -1,7 +1,9 @@
 package tablero.entidades;
 
+import tablero.Celda;
 import tablero.Tablero;
 import tablero.entidades.choque.ComportamientoDeChoque;
+import tablero.entidades.movimiento.EstrategiaMovimiento;
 
 public abstract class Caja implements Entidad {
 
@@ -24,6 +26,11 @@ public abstract class Caja implements Entidad {
         comportamientoDeChoque.alSerEmpujada(tablero, fila, columna, this);
     }
 
+    public void despuesDeSerEmpujada(Tablero tablero, Celda celdaFinal) {
+        // Por defecto no hace nada, o puedes derivarlo a tu comportamiento de choque
+        // si lo adaptas en el futuro.
+    }
+
     public void alChocarConObstaculo(Tablero tablero, int fila, int columna) {
         comportamientoDeChoque.alChocarConObstaculo(tablero, fila, columna, this);
     }
@@ -42,5 +49,9 @@ public abstract class Caja implements Entidad {
 
     public boolean puedeAbrirCerrojo() {
         return false;
+    }
+
+    public EstrategiaMovimiento obtenerEstrategiaPropia() {
+        return null;
     }
 }

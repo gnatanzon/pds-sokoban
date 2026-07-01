@@ -19,7 +19,8 @@ public class GestorSonido {
         CERROJO             ("Cerrojo.wav"),
         CAJA                ("Caja.wav"),
         CAJA_FRAGIL_ROTA    ("CajaFragilRota.wav"),
-        EXPLOSION           ("Explosion.wav");   // <-- nueva constante
+        EXPLOSION           ("Explosion.wav"),
+        SPRAY_ACUATICO ("SprayAcuatico.wav");
 
 
         private final String archivo;

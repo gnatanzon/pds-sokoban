@@ -8,6 +8,7 @@ import tablero.Tablero;
 import tablero.background.Piso;
 
 import tablero.entidades.*;
+import tablero.entidades.decorator.CajaAntirresbaladizaDecorator;
 import tablero.entidades.movimiento.*;
 
 import java.awt.event.KeyAdapter;
@@ -96,8 +97,14 @@ public class ControladorJuego extends KeyAdapter {
         }
 
         if (destino.tieneEntidad()) {
-            if (!destino.obtenerEntidad().esCaja()) return;
-            if (!intentarEmpujarCaja(nuevaFila, nuevaColumna, deltaFila, deltaColumna)) {
+            Entidad entidadDestino = destino.obtenerEntidad();
+
+            if (entidadDestino.esPowerUp()) {
+                recogerPowerUp(entidadDestino);
+                destino.limpiarEntidad();
+            } else if (!entidadDestino.esCaja()) {
+                return;
+            } else if (!intentarEmpujarCaja(nuevaFila, nuevaColumna, deltaFila, deltaColumna)) {
                 notificarMovimiento();
                 return;
             }
@@ -124,6 +131,13 @@ public class ControladorJuego extends KeyAdapter {
         }
     }
 
+    private void recogerPowerUp(Entidad powerUp) {
+        if (powerUp instanceof SprayAcuatico) {
+            jugador.agregarCargaSpray();
+            sonido.reproducir(powerUp.obtenerSonido());
+        }
+    }
+
     private boolean intentarEmpujarCaja(int cajaFila, int cajaCol, int deltaFila, int deltaCol) {
         Celda celdaCaja    = tablero.obtenerCelda(cajaFila, cajaCol);
         Celda celdaDestino = tablero.obtenerCelda(cajaFila + deltaFila, cajaCol + deltaCol);
@@ -133,7 +147,17 @@ public class ControladorJuego extends KeyAdapter {
 
         Caja caja = entidad.comoCaja();
 
-        EstrategiaMovimiento estrategia = celdaDestino.obtenerPiso().obtenerEstrategiaMovimiento();
+        //si el jugador tiene carga de spray, esta caja queda "sellada"
+        if (jugador.tieneCargaSpray()) {
+            caja = new CajaAntirresbaladizaDecorator(caja);
+            celdaCaja.establecerEntidad(caja);   // reemplaza la caja en el tablero por la decorada
+            jugador.consumirCargaSpray();
+        }
+
+        EstrategiaMovimiento estrategia = caja.obtenerEstrategiaPropia();
+        if (estrategia == null) {
+            estrategia = celdaDestino.obtenerPiso().obtenerEstrategiaMovimiento();
+        }
 
         ResultadoMovimiento resultado = estrategia.mover(
                 tablero, cajaFila, cajaCol, deltaFila, deltaCol, caja

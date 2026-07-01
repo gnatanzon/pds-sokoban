@@ -9,15 +9,13 @@ public interface Entidad {
 
     default boolean esJugador() { return false; }
 
-    default Jugador comoJugador() {
-        throw new IllegalStateException("La entidad no es un jugador");
-    }
+    default Jugador comoJugador() { throw new IllegalStateException("La entidad no es un jugador"); }
 
     default boolean esCaja() { return false; }
 
-    default Caja comoCaja() {
-        throw new IllegalStateException("La entidad no es una caja");
-    }
+    default Caja comoCaja() { throw new IllegalStateException("La entidad no es una caja"); }
 
     default boolean puedeCumplirObjetivo() { return false; }
+
+    default boolean esPowerUp() { return false; }
 }

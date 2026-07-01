@@ -7,6 +7,7 @@ public class Jugador implements Entidad {
     private String nombre;
     private String spritePath;
     private GestorSonido.Sonido sonidoEspacioVacio;
+    private int cargasSpray = 0; // NUEVO
 
     private Jugador() {}
 
@@ -25,6 +26,10 @@ public class Jugador implements Entidad {
     }
     @Override public boolean esSolida()         { return true; }
     @Override public String obtenerSimbolo()    { return "JU"; }
+
+    public boolean tieneCargaSpray() { return cargasSpray > 0; }
+    public void agregarCargaSpray()  { cargasSpray++; }
+    public void consumirCargaSpray() { if (cargasSpray > 0) cargasSpray--; }
 
     public static class Builder {
 
@@ -60,6 +65,7 @@ public class Jugador implements Entidad {
             j.spritePath         = this.spritePath;
             j.sonidoEspacioVacio = this.sonido;
             return j;
-        }
+         }
     }
+
 }

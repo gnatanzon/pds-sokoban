@@ -35,6 +35,7 @@ public class FabricaElementosSokoban implements FabricaElementos {
             case 3: return new CajaFragil();
             case 4: return new CajaLlave();
             case 5: return new CajaExplosiva();
+            case 6: return new SprayAcuatico();
             default: throw new IllegalArgumentException("Código de entidad desconocido: " + codigo);
         }
     }
