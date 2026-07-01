@@ -6,6 +6,7 @@ import sonido.GestorSonido;
 import tablero.Celda;
 import tablero.Tablero;
 import tablero.background.Piso;
+import controlador.memento.CalculadorPuntaje;
 
 import tablero.entidades.*;
 import tablero.entidades.decorator.CajaAntirresbaladizaDecorator;
@@ -194,4 +195,17 @@ public class ControladorJuego extends KeyAdapter {
     public HistorialMovimientos getHistorial() {
         return historial;
     }
+
+    public int obtenerFilas()     { return tablero.obtenerFilas(); }
+    public int obtenerColumnas()  { return tablero.obtenerColumnas(); }
+
+    public int calcularPuntaje() {
+        return CalculadorPuntaje.calcular(
+                historial.getTotalMovimientos(),
+                historial.getTotalEmpujes(),
+                historial.getTotalUndos(),
+                tablero.obtenerMovMin()
+        );
+    }
+    public int obtenerMovimientosMinimos() { return tablero.obtenerMovMin(); }
 }

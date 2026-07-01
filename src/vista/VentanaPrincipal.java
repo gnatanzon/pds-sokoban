@@ -26,7 +26,7 @@ public class VentanaPrincipal extends JFrame {
 
     // El jugador se crea una sola vez al inicio y se reutiliza en todos los niveles
     private Jugador jugador;
-    private Tablero tableroActual;
+
 
     public VentanaPrincipal() {
         this.gestor = new GestorNiveles();
@@ -109,7 +109,6 @@ public class VentanaPrincipal extends JFrame {
         FabricaElementosSokoban fabrica = new FabricaElementosSokoban(jugador);
         CargadorNivel cargador = new CargadorNivel(fabrica);
         Tablero tablero = cargador.cargar(rutaNivel);
-        this.tableroActual = tablero;
 
         CargadorAssets assets = new CargadorAssets(jugador);
         panelTablero = new PanelTablero(tablero, assets);
@@ -229,13 +228,7 @@ public class VentanaPrincipal extends JFrame {
 
         // 1. Obtener historial y calcular puntaje
         HistorialMovimientos historial = controladorActual.getHistorial();
-        int movMin = tableroActual.obtenerMovMin();
-        int puntos = CalculadorPuntaje.calcular(
-                historial.getTotalMovimientos(),
-                historial.getTotalEmpujes(),
-                historial.getTotalUndos(),
-                movMin
-        );
+        int puntos = controladorActual.calcularPuntaje();
 
         // 2. Desbloquear el nivel siguiente (ya que este fue superado)
         gestor.desbloquearSiguiente();
@@ -246,7 +239,7 @@ public class VentanaPrincipal extends JFrame {
                 historial,
                 puntos,
                 gestor,
-                movMin
+                controladorActual.obtenerMovimientosMinimos()
         );
         dialogo.setVisible(true);
 
