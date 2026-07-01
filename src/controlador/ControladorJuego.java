@@ -78,6 +78,7 @@ public class ControladorJuego extends KeyAdapter {
     public void deshacerMovimiento() {
         if (nivelTerminado) return;
         if (historial.deshacer(tablero)) {
+            sonido.reproducir(GestorSonido.Sonido.UNDO);   // NUEVO
             ubicarJugador();
             notificarUndo();
         }

@@ -2,24 +2,14 @@ package sonido;
 
 import javax.sound.sampled.*;
 import java.net.URL;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GestorSonido {
 
     private static GestorSonido instancia;
-    private float volumen = 1.0f;
-    private boolean silenciado = false;
-    private Clip clipActual;
-    private int prioridadActual = -1;
-    private volatile boolean sonando = false;   // NUEVO: reemplaza a isRunning()
-
-    private final ExecutorService hiloAudio = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "hilo-audio");
-        t.setDaemon(true);
-        return t;
-    });
-
 
     private static final String RUTA = "/sonidos/";
 
@@ -35,8 +25,8 @@ public class GestorSonido {
         CAJA_FRAGIL_ROTA    ("CajaFragilRota.wav", 1),
         EXPLOSION           ("Explosion.wav", 2),
         SPRAY_ACUATICO      ("SprayAcuatico.wav", 1),
-        VICTORIA            ("VICTORIA.wav", 2);
-
+        VICTORIA            ("Victoria.wav", 2),
+        UNDO ("Undo.wav", 1);
 
         private final String archivo;
         private final int prioridad;
@@ -50,7 +40,25 @@ public class GestorSonido {
         public int    getPrioridad(){ return prioridad; }
     }
 
-    private GestorSonido() {}
+    private boolean silenciado = false;
+    private float volumen = 1.0f;
+
+    private Clip clipActual;
+    private int  prioridadActual = -1;
+    private volatile boolean sonando = false;
+
+    // NUEVO: clips precargados y abiertos una sola vez
+    private final Map<Sonido, Clip> clips = new EnumMap<>(Sonido.class);
+
+    private final ExecutorService hiloAudio = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "hilo-audio");
+        t.setDaemon(true);
+        return t;
+    });
+
+    private GestorSonido() {
+        precargarSonidos(); // NUEVO
+    }
 
     public static GestorSonido obtenerInstancia() {
         if (instancia == null) {
@@ -59,9 +67,34 @@ public class GestorSonido {
         return instancia;
     }
 
-    public boolean alternarSilencio() {
+    // NUEVO: carga y abre todos los clips una única vez, al arrancar
+    private void precargarSonidos() {
+        for (Sonido sonido : Sonido.values()) {
+            try {
+                URL url = getClass().getResource(RUTA + sonido.getArchivo());
+                if (url == null) {
+                    System.err.println("No se encontró " + sonido.getArchivo());
+                    continue;
+                }
+                AudioInputStream audio = AudioSystem.getAudioInputStream(url);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audio);
+
+                clip.addLineListener(evento -> {
+                    if (evento.getType() == LineEvent.Type.STOP && clip == clipActual) {
+                        sonando = false;
+                    }
+                });
+
+                clips.put(sonido, clip);
+            } catch (Exception e) {
+                System.err.println("Error al precargar " + sonido.getArchivo() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    public void alternarSilencio() {
         silenciado = !silenciado;
-        return silenciado;
     }
 
     public boolean estaSilenciado() {
@@ -69,7 +102,7 @@ public class GestorSonido {
     }
 
     public void establecerVolumen(float valor) {
-        volumen = Math.max(0.0f, Math.min(1.0f, valor)); // clamp entre 0 y 1
+        volumen = Math.max(0.0f, Math.min(1.0f, valor));
     }
 
     public float obtenerVolumen() {
@@ -80,14 +113,37 @@ public class GestorSonido {
         if (silenciado) return;
         hiloAudio.submit(() -> reproducirInterno(sonido));
     }
-    
+
+    private synchronized void reproducirInterno(Sonido sonido) {
+        if (sonando && prioridadActual > sonido.getPrioridad()) {
+            return;
+        }
+
+        Clip clip = clips.get(sonido);
+        if (clip == null) {
+            System.err.println("Sonido no disponible: " + sonido.getArchivo());
+            return;
+        }
+
+        if (clipActual != null && clipActual.isRunning()) {
+            clipActual.stop();
+        }
+
+        aplicarVolumen(clip);
+        clip.setFramePosition(0); // rebobina en vez de reabrir
+
+        clipActual = clip;
+        prioridadActual = sonido.getPrioridad();
+        sonando = true;
+        clip.start();
+    }
+
     private void aplicarVolumen(Clip clip) {
         if (!clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) return;
         FloatControl control = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
         float minDb = control.getMinimum();
         float maxDb = control.getMaximum();
 
-        // volumen 0.0 -> minDb (silencio real), volumen 1.0 -> 0dB (sin atenuar)
         float db;
         if (volumen <= 0.0001f) {
             db = minDb;
@@ -96,42 +152,5 @@ public class GestorSonido {
             db = Math.max(minDb, Math.min(maxDb, db));
         }
         control.setValue(db);
-    }
-
-    private synchronized void reproducirInterno(Sonido sonido) {
-        try {
-            // NUEVO: usa el flag propio, no isRunning()
-            if (sonando && prioridadActual > sonido.getPrioridad()) {
-                return;
-            }
-
-            if (clipActual != null) {
-                clipActual.stop();
-                clipActual.close();
-            }
-
-            URL url = getClass().getResource(RUTA + sonido.getArchivo());
-            if (url == null) {
-                System.err.println("No se encontró " + sonido.getArchivo());
-                return;
-            }
-            AudioInputStream audio = AudioSystem.getAudioInputStream(url);
-            Clip clip = AudioSystem.getClip();
-            clip.open(audio);
-            aplicarVolumen(clip);
-
-            clip.addLineListener(evento -> {
-                if (evento.getType() == LineEvent.Type.STOP && clip == clipActual) {
-                    sonando = false;   // NUEVO: libera la prioridad cuando termina solo
-                }
-            });
-
-            clipActual = clip;
-            prioridadActual = sonido.getPrioridad();
-            sonando = true;   // NUEVO: se marca ANTES de start(), sin esperar a isRunning()
-            clip.start();
-        } catch (Exception e) {
-            System.err.println("Error c/ " + sonido.getArchivo() + ": " + e.getMessage());
-        }
     }
 }
